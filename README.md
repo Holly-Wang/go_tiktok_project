@@ -2,7 +2,7 @@
 
 ## Background
 
-a simple inplemention of Tiktok.
+a simple inplementation of Tiktok.
 
 ## Install
 

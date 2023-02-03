@@ -2,12 +2,9 @@ package mysql
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
 	UserID       uint64 `gorm:"primaryKey"`
 	Username     string
 	Password     string
@@ -18,7 +15,6 @@ type User struct {
 }
 
 type Video struct {
-	gorm.Model
 	VideoID      uint64 `gorm:"primaryKey"`
 	AutherID     uint64
 	PlayUrl      string
@@ -30,7 +26,6 @@ type Video struct {
 }
 
 type Comment struct {
-	gorm.Model
 	CommentID   uint64 `gorm:"primaryKey"`
 	VideoID     uint64
 	UserID      uint64
@@ -41,7 +36,6 @@ type Comment struct {
 }
 
 type Like struct {
-	gorm.Model
 	KeyID    uint64 `gorm:"primaryKey"`
 	OwnerID  uint64
 	VideoID  uint64
@@ -49,7 +43,6 @@ type Like struct {
 }
 
 type Follow struct {
-	gorm.Model
 	KeyID     uint64 `gorm:"primaryKey"`
 	WatcherID uint64
 	WatchedID uint64

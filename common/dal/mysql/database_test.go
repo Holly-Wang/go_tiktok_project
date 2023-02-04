@@ -1,23 +1,17 @@
 package mysql
 
 import (
-	"log"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDatabaseOp(t *testing.T) {
 	InitDB()
 	err := CreateLike(123, 321, 111)
-	if err != nil {
-		log.Fatal(err)
-	}
-	id, findErr := FindIDinLike(321, 111)
-	if findErr != nil {
-		log.Fatal(findErr)
-	}
-	//fmt.Println("keyid:", ID)
-	Del := DelLike(id)
-	if Del != nil {
-		log.Fatal("删除失败")
-	}
+	assert.NoError(t, err)
+	id, err := FindIDinLike(321, 111)
+	assert.NoError(t, err)
+	del := DelLike(id)
+	assert.NotNil(t, del)
 }

@@ -2,7 +2,8 @@ package mysql
 
 import "fmt"
 
-func FindIDinLike(userID, videoID uint64) (uint64, error) { //失败时主键返回0和错误信息
+// FindIDinLike 失败时主键返回0和错误信息
+func FindIDinLike(userID, videoID uint64) (uint64, error) {
 	var like Like
 	err := db.Where("owner_id = ? AND video_id = ?", userID, videoID).First(&like)
 	if err.Error != nil {

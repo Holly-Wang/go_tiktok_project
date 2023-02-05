@@ -3,7 +3,7 @@ version: '3.0'
 services:
   mysql:
     image: mysql
-    container_name: "mysql_dev"
+    container_name: mysql_dev
     ports:
       - 3303:3306
     environment:
@@ -11,12 +11,17 @@ services:
     volumes:
       - "./common/dal/mysql/sql/:/sql/"
       - "./common/dal/mysql/sql/init:/docker-entrypoint-initdb.d/"
+      
   build:
     image: golang
     container_name: tiktok
-    # depends_on:
-    #   - mysql
-    # command:
-    #   bash /docker-compose.sh
-    # volumes:
-    #   - .:/go_tiktok_project
+    depends_on:
+      - mysql
+    # stdin_open: 
+    #   true
+    # tty: 
+    #   true
+    command:
+      bash /go_tiktok_project/docker-compose.sh
+    volumes:
+      - .:/go_tiktok_project

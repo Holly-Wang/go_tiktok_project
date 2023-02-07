@@ -28,8 +28,9 @@ func SetValue(key string, value interface{}) error {
 // key: "toekn"
 // field: username
 // value: token
-func HashSetToken(key, field string, value interface{}) error {
+func HashSetToken(field string, value interface{}) error {
 	var ctx context.Context
+	key := "token"
 	if key == "" || field == "" {
 		return errors.New("argument is null")
 	}

@@ -9,7 +9,7 @@ import (
 
 // key-value
 // GET key
-func GetTVaule(key string) (string, error) {
+func GetVaule(key string) (string, error) {
 	var ctx context.Context
 	if key == "" {
 		return "", errors.New("Error occurs: key is empty.")

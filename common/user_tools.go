@@ -1,9 +1,13 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/redis/go-redis/v9"
+
+	"go_tiktok_project/common/dal/rediss"
 )
 
 type Claims struct {
@@ -43,5 +47,23 @@ func Token2UserID(token string) (uint64, error) {
 		return 0, err
 	}
 	return claimp.ID, nil
+}
 
+// check whether user logins
+// false  && no error-- doesn't login
+// false && error -- error
+// true && no error -- login and return token
+func IsUserLogin() (bool, string, error) {
+	res, err := rediss.HashGetAllTokens("token")
+	if err == redis.Nil {
+		return false, "", nil
+	}
+	if err != nil {
+		return false, "", errors.New(err.Error())
+	}
+	var token string
+	for tmp := range res {
+		token = res[tmp]
+	}
+	return true, token, nil
 }

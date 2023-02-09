@@ -15,3 +15,12 @@ const (
 const (
 	LoginSuccessMsg = "login success"
 )
+
+const (
+	RegisterSucces = iota
+	RegisterFailed
+)
+
+const (
+	RegisterSueecssMsg = "register success"
+)

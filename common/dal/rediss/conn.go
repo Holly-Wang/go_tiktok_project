@@ -2,9 +2,8 @@ package rediss
 
 import (
 	"context"
-	"log"
-
 	"github.com/redis/go-redis/v9"
+	"log"
 )
 
 var rdb *redis.Client
@@ -30,7 +29,7 @@ func initRedis() {
 	//})
 	temp, err := rdb.Ping(context.Background()).Result()
 	if err != nil {
-		log.Println("redis connetc failed + ", err.Error())
+		log.Println("redis connect failed + ", err.Error())
 		return
 	}
 	log.Println("redis init success")

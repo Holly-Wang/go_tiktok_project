@@ -13,5 +13,5 @@ func TestDatabaseOp(t *testing.T) {
 	id, err := FindIDinLike(321, 111)
 	assert.NoError(t, err)
 	del := DelLike(id)
-	assert.NotNil(t, del)
+	assert.Nil(t, del)
 }

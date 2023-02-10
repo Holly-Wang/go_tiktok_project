@@ -12,7 +12,10 @@ func register(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
 
 	r.GET("/douyin/user/", middlewares.AuthN(), handler.GetUserInfo)
+	r.GET("/douyin/favorite/list/", handler.GetFavList)
 
 	r.POST("douyin/user/register", handler.UserRegister)
 	r.POST("douyin/user/login", handler.UserLogin)
+	r.POST("/douyin/favorite/action/", handler.Favorite)
+
 }

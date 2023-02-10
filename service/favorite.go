@@ -59,6 +59,7 @@ func DelTX(db *gorm.DB, userID int64, videoID int64) error { //删除点赞视�
 }
 
 func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActionResponse, error) {
+	mysql.InitDB()
 	db := mysql.NewDB()
 	token := req.Token
 	videoID := req.VideoId

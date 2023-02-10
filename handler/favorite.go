@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "go_tiktok_project/idl/pb"
 	"go_tiktok_project/service"
+	"strconv"
 
 	"go_tiktok_project/common/dal/mysql"
 
@@ -29,10 +30,23 @@ func Favorite(ctx context.Context, c *app.RequestContext) {
 	logs.Info("req path: %s", path)
 
 	req := new(pb.DouyinFavoriteActionRequest)
-	if err := c.BindAndValidate(&req); err != nil {
-		c.String(400, err.Error())
-		return
-	}
+	ActionType := c.Query("action_type")
+	actionType_n, _ := strconv.Atoi(ActionType)
+	actionType := int32(actionType_n)
+	req.ActionType = &actionType
+	vidio_id := c.Query("video_id")
+	vidioid, _ := strconv.Atoi(vidio_id)
+	video_id := int64(vidioid)
+	req.VideoId = &video_id
+	token := c.Query("token")
+	req.Token = &token
+
+	//校验并解析请求
+	// if err := c.BindAndValidate(&req); err != nil {
+	// 	c.String(400, err.Error())
+	// 	return
+	// }
+	logs.Info("req actiontype:%v", req.ActionType)
 	resp, err := service.FavoriteAction(req)
 	if err != nil {
 		c.String(400, err.Error())
@@ -45,12 +59,12 @@ func Favorite(ctx context.Context, c *app.RequestContext) {
 func GetFavList(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: %s", path)
-	req := new(FavListReq)
-	if err := c.BindAndValidate(&req); err != nil {
-		c.String(400, err.Error())
-		return
-	}
-	userID := req.UserID
+	// if err := c.BindAndValidate(&req); err != nil {
+	// 	c.String(400, err.Error())
+	// 	return
+	// }
+	UserID := c.Query("user_id")
+	userID, _ := strconv.Atoi(UserID)
 	lists, err := mysql.FindLikeList(int64(userID))
 	if err != nil {
 		c.String(400, err.Error())

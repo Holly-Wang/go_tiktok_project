@@ -63,8 +63,7 @@ func FindLikeList(userID int64) (*[]int64, error) {
 		return nil, res.Error
 	}
 	var videoIDs []int64
-	var i = 0
-	for i = 0; i < int(res.RowsAffected); i++ {
+	for i := 0; i < int(res.RowsAffected); i++ {
 		videoIDs = append(videoIDs, likes[i].VideoID)
 	}
 	return &videoIDs, nil

@@ -2,14 +2,15 @@ package handler
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/cmd/hz/util/logs"
-	"github.com/cloudwego/hertz/pkg/app"
 	"go_tiktok_project/common"
 	"go_tiktok_project/common/dal/mysql"
 	"go_tiktok_project/common/dal/rediss"
 	pb "go_tiktok_project/idl/pb"
 	"go_tiktok_project/service"
 	"net/http"
+
+	"github.com/cloudwego/hertz/cmd/hz/util/logs"
+	"github.com/cloudwego/hertz/pkg/app"
 )
 
 func UserRegister(ctx context.Context, c *app.RequestContext) {
@@ -45,7 +46,7 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	token, err := service.GenerateToken(userID, req.GetUsername())
+	token, err := service.GenerateToken(uint64(userID), req.GetUsername())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "generate token failed")
 		return

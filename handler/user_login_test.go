@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/app"
 )
 
 func TestUserLogin(t *testing.T) {

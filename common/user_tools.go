@@ -1,13 +1,9 @@
 package common
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/redis/go-redis/v9"
-
-	"go_tiktok_project/common/dal/rediss"
 )
 
 type Claims struct {

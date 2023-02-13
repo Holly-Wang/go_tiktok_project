@@ -2,8 +2,9 @@ package mysql
 
 import (
 	"fmt"
-	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"time"
+
+	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 )
 
 // CreateLike 根据雪花主键插入视频的点赞表
@@ -34,4 +35,15 @@ func CreateUser(username, password string) (uint64, error) {
 		return 0, result.Error
 	}
 	return user.UserID, nil
+}
+
+func CreateComment(keyId, videoID, userID int64, context string, likeCount int64, isLike bool) error {
+	comment := Comment{CommentID: keyId, VideoID: videoID, UserID: userID,
+		Context: context, LikeCount: likeCount, IsLike: isLike, CommentTime: time.Now()}
+	result := db.Create(&comment)
+	if result.Error != nil {
+		fmt.Println("Comment表格创建数据失败: " + result.Error.Error())
+		return result.Error
+	}
+	return nil
 }

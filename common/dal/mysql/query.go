@@ -3,6 +3,7 @@ package mysql
 import (
 	"errors"
 	"fmt"
+
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"github.com/redis/go-redis/v9"
 )
@@ -51,4 +52,32 @@ func FindUserByNameAndPass(username, password string) (User, error) {
 		return user, errors.New("wrong password")
 	}
 	return user, nil
+}
+
+func FindUserById(userid uint64) (User, error) {
+	var user User
+	res := db.Where("user_id = ?", userid).First(&user)
+	if res.Error == redis.Nil {
+		return user, errors.New("user doesn't exist")
+	}
+	if res.Error != nil {
+		logs.Errorf("mysql error during selecting: ", res.Error.Error())
+		return user, res.Error
+	}
+	return user, nil
+}
+
+func FindCommit(videoID int64) ([]Comment, error) {
+	var comments []Comment
+	// select * from comments where video_id = ? order by comment_time desc
+	res := db.Where("video_id = ? ", videoID).Order("comment_time desc").Find(&comments)
+	if res.Error != nil {
+		fmt.Println("查询comment表主键出错, error: " + res.Error.Error())
+		return nil, res.Error
+	}
+	var commentss []Comment
+	for i := 0; i < int(res.RowsAffected); i++ {
+		commentss = append(commentss, comments[i])
+	}
+	return commentss, nil
 }

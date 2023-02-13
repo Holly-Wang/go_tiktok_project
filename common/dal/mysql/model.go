@@ -26,9 +26,9 @@ type Video struct {
 }
 
 type Comment struct {
-	CommentID   uint64 `gorm:"primaryKey"`
-	VideoID     uint64
-	UserID      uint64
+	CommentID   int64 `gorm:"primaryKey"`
+	VideoID     int64
+	UserID      int64
 	Context     string
 	LikeCount   int64
 	IsLike      bool

@@ -2,7 +2,7 @@ package mysql
 
 import "fmt"
 
-func DelLike(keyID uint64) error {
+func DelLike(keyID int64) error {
 	like := Like{KeyID: keyID}
 	// 修改结构体后是硬删除，修改前包含gorm.Model后生成了gorm.deletedat,自动变为软删除
 	result := db.Delete(&like)

@@ -9,7 +9,7 @@ import (
 )
 
 // FindIDinLike 失败时主键返回0和错误信息
-func FindIDinLike(userID, videoID uint64) (uint64, error) {
+func FindIDinLike(userID, videoID uint64) (int64, error) {
 	var like Like
 	err := db.Where("owner_id = ? AND video_id = ?", userID, videoID).First(&like)
 	if err.Error != nil {
@@ -80,4 +80,28 @@ func FindCommit(videoID int64) ([]Comment, error) {
 		commentss = append(commentss, comments[i])
 	}
 	return commentss, nil
+//查询登录用户喜欢的视频列表
+func FindLikeList(userID int64) (*[]int64, error) {
+	var likes []Like
+	res := db.Where("owner_id=?", userID).Find(&likes)
+	if res.Error != nil {
+		fmt.Println("无法获取用户喜爱列表,error: " + res.Error.Error())
+		return nil, res.Error
+	}
+	var videoIDs []int64
+	for i := 0; i < int(res.RowsAffected); i++ {
+		videoIDs = append(videoIDs, likes[i].VideoID)
+	}
+	return &videoIDs, nil
+}
+
+//查询视频点赞数
+func FindLikeOfVideo(videoID int64) (int64, error) {
+	var video Video
+	err := db.Where("video_id=?", videoID).First(&video).Error
+	if err != nil {
+		fmt.Println("查询点赞出错, error: " + err.Error())
+		return -1, err
+	}
+	return video.LikeCount, nil
 }

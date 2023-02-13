@@ -8,7 +8,7 @@ import (
 )
 
 // CreateLike 根据雪花主键插入视频的点赞表
-func CreateLike(keyID, userID, videoID uint64) error {
+func CreateLike(keyID, userID, videoID int64) error {
 	like := Like{KeyID: keyID, OwnerID: userID, VideoID: videoID, LikeTime: time.Now()}
 	// 通过数据的指针来创建
 	result := db.Create(&like)
@@ -19,7 +19,7 @@ func CreateLike(keyID, userID, videoID uint64) error {
 	return nil
 }
 
-func CreateUser(username, password string) (uint64, error) {
+func CreateUser(username, password string) (int64, error) {
 	var user User
 	user = User{
 		Username:     username,

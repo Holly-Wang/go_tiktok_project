@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	UserID       uint64 `gorm:"primaryKey"`
+	UserID       int64 `gorm:"primaryKey"`
 	Username     string
 	Password     string
 	NickName     string
@@ -15,8 +15,8 @@ type User struct {
 }
 
 type Video struct {
-	VideoID      uint64 `gorm:"primaryKey"`
-	AutherID     uint64
+	VideoID      int64 `gorm:"primaryKey"`
+	AutherID     int64
 	PlayUrl      string
 	CoverUrl     string
 	LikeCount    int64
@@ -36,15 +36,15 @@ type Comment struct {
 }
 
 type Like struct {
-	KeyID    uint64 `gorm:"primaryKey"`
-	OwnerID  uint64
-	VideoID  uint64
+	KeyID    int64 `gorm:"primaryKey"`
+	OwnerID  int64
+	VideoID  int64
 	LikeTime time.Time
 }
 
 type Follow struct {
-	KeyID     uint64 `gorm:"primaryKey"`
-	WatcherID uint64
-	WatchedID uint64
+	KeyID     int64 `gorm:"primaryKey"`
+	WatcherID int64
+	WatchedID int64
 	WatchTime time.Time
 }

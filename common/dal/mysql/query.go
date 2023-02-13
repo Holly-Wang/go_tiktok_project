@@ -80,7 +80,9 @@ func FindCommit(videoID int64) ([]Comment, error) {
 		commentss = append(commentss, comments[i])
 	}
 	return commentss, nil
-//查询登录用户喜欢的视频列表
+}
+
+// 查询登录用户喜欢的视频列表
 func FindLikeList(userID int64) (*[]int64, error) {
 	var likes []Like
 	res := db.Where("owner_id=?", userID).Find(&likes)
@@ -95,7 +97,7 @@ func FindLikeList(userID int64) (*[]int64, error) {
 	return &videoIDs, nil
 }
 
-//查询视频点赞数
+// 查询视频点赞数
 func FindLikeOfVideo(videoID int64) (int64, error) {
 	var video Video
 	err := db.Where("video_id=?", videoID).First(&video).Error

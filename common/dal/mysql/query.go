@@ -67,7 +67,7 @@ func FindUserById(userid uint64) (User, error) {
 	return user, nil
 }
 
-func FindCommit(videoID int64) ([]Comment, error) {
+func FindComment(videoID int64) ([]Comment, error) {
 	var comments []Comment
 	// select * from comments where video_id = ? order by comment_time desc
 	res := db.Where("video_id = ? ", videoID).Order("comment_time desc").Find(&comments)

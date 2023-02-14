@@ -28,7 +28,7 @@ func CommentList(ctx context.Context, c *app.RequestContext) {
 	Video_id := c.Query("video_id")
 	video_id_n, _ := strconv.Atoi(Video_id)
 	video_id := int64(video_id_n)
-	list, err := model.FindCommit(video_id)
+	list, err := model.FindComment(video_id)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return

@@ -54,7 +54,35 @@ func FindUserByNameAndPass(username, password string) (User, error) {
 	return user, nil
 }
 
-//查询登录用户喜欢的视频列表
+func FindUserById(userid uint64) (User, error) {
+	var user User
+	res := db.Where("user_id = ?", userid).First(&user)
+	if res.Error == redis.Nil {
+		return user, errors.New("user doesn't exist")
+	}
+	if res.Error != nil {
+		logs.Errorf("mysql error during selecting: ", res.Error.Error())
+		return user, res.Error
+	}
+	return user, nil
+}
+
+func FindComment(videoID int64) ([]Comment, error) {
+	var comments []Comment
+	// select * from comments where video_id = ? order by comment_time desc
+	res := db.Where("video_id = ? ", videoID).Order("comment_time desc").Find(&comments)
+	if res.Error != nil {
+		fmt.Println("查询comment表主键出错, error: " + res.Error.Error())
+		return nil, res.Error
+	}
+	var commentss []Comment
+	for i := 0; i < int(res.RowsAffected); i++ {
+		commentss = append(commentss, comments[i])
+	}
+	return commentss, nil
+}
+
+// 查询登录用户喜欢的视频列表
 func FindLikeList(userID int64) (*[]int64, error) {
 	var likes []Like
 	res := db.Where("owner_id=?", userID).Find(&likes)
@@ -69,7 +97,7 @@ func FindLikeList(userID int64) (*[]int64, error) {
 	return &videoIDs, nil
 }
 
-//查询视频点赞数
+// 查询视频点赞数
 func FindLikeOfVideo(videoID int64) (int64, error) {
 	var video Video
 	err := db.Where("video_id=?", videoID).First(&video).Error

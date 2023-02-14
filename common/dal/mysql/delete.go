@@ -12,3 +12,13 @@ func DelLike(keyID int64) error {
 	}
 	return nil
 }
+
+func DelComment(keyID int64) error {
+	comment := Comment{CommentID: keyID}
+	result := db.Delete(&comment)
+	if result.Error != nil {
+		fmt.Println("删除comment表数据失败,error: " + result.Error.Error())
+		return result.Error
+	}
+	return nil
+}

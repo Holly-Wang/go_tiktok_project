@@ -16,6 +16,9 @@ func register(r *server.Hertz) {
 
 	r.POST("douyin/user/register", handler.UserRegister)
 	r.POST("douyin/user/login", handler.UserLogin)
+
+	r.POST("/douyin/comment/action", handler.CommentAction)
+	r.GET("/douyin/comment/list", handler.CommentList)
 	r.POST("/douyin/favorite/action/", handler.Favorite)
 
 }

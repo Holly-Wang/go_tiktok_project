@@ -36,3 +36,14 @@ func CreateUser(username, password string) (int64, error) {
 	}
 	return user.UserID, nil
 }
+
+func CreateComment(keyId, videoID, userID int64, context string, likeCount int64, isLike bool) error {
+	comment := Comment{CommentID: keyId, VideoID: videoID, UserID: userID,
+		Context: context, LikeCount: likeCount, IsLike: isLike, CommentTime: time.Now()}
+	result := db.Create(&comment)
+	if result.Error != nil {
+		fmt.Println("Comment表格创建数据失败: " + result.Error.Error())
+		return result.Error
+	}
+	return nil
+}

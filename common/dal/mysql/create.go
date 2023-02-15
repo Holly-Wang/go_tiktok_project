@@ -28,7 +28,7 @@ func CreateUser(username, password string) (int64, error) {
 		Follow_cnt:   0,
 		RegisterTime: time.Now(),
 	}
-	result := db.Create(&user)
+	result := db.Select("Username", "Password", "Follower_cnt", "Follow_cnt", "RegisterTime").Create(&user)
 	if result.Error != nil {
 		logs.Errorf("insert to mysql error: ", result.Error.Error())
 		//fmt.Println("User insert failed: " + result.Error.Error())

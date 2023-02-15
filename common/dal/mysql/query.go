@@ -3,9 +3,9 @@ package mysql
 import (
 	"errors"
 	"fmt"
+	"gorm.io/gorm"
 
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
-	"github.com/redis/go-redis/v9"
 )
 
 // FindIDinLike 失败时主键返回0和错误信息
@@ -24,14 +24,18 @@ func FindIDinLike(userID, videoID uint64) (int64, error) {
 // false, err --> database error
 // true, nil --> user is found
 func FindUserByName(username string) (bool, error) {
+	if db == nil {
+		InitDB()
+	}
 	var user User
 	err := db.Where("username = ?", username).First(&user)
-	if err.Error == redis.Nil {
+	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
 		// user isn't found
+		//fmt.Println("user doesn't exist")
 		return false, nil
 	}
 	// other error
-	if err != nil {
+	if err.Error != nil {
 		return false, err.Error
 	}
 	// user is found
@@ -39,16 +43,22 @@ func FindUserByName(username string) (bool, error) {
 }
 
 func FindUserByNameAndPass(username, password string) (User, error) {
+	if db == nil {
+		InitDB()
+	}
 	var user User
 	err := db.Where("username = ?", username).First(&user)
-	if err.Error == redis.Nil {
+	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
 		return user, errors.New("user doesn't exist")
 	}
-	if err != nil {
+	if err.Error != nil {
 		logs.Errorf("mysql error during selecting: ", err.Error.Error())
 		return user, err.Error
 	}
+	//fmt.Println(user.Password)
+	//fmt.Println(password)
 	if user.Password != password {
+		//fmt.Println("wrong pass")
 		return user, errors.New("wrong password")
 	}
 	return user, nil
@@ -56,13 +66,13 @@ func FindUserByNameAndPass(username, password string) (User, error) {
 
 func FindUserById(userid uint64) (User, error) {
 	var user User
-	res := db.Where("user_id = ?", userid).First(&user)
-	if res.Error == redis.Nil {
+	err := db.Where("user_id = ?", userid).First(&user)
+	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
 		return user, errors.New("user doesn't exist")
 	}
-	if res.Error != nil {
-		logs.Errorf("mysql error during selecting: ", res.Error.Error())
-		return user, res.Error
+	if err.Error != nil {
+		logs.Errorf("mysql error during selecting: ", err.Error.Error())
+		return user, err.Error
 	}
 	return user, nil
 }

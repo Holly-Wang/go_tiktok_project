@@ -9,7 +9,6 @@ import (
 	"go_tiktok_project/common/dal/rediss"
 	pb "go_tiktok_project/idl/pb"
 	"net/http"
-	"reflect"
 )
 
 func UserLogin(ctx context.Context, c *app.RequestContext) {
@@ -20,37 +19,32 @@ func UserLogin(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: ", path)
 
-	req := new(pb.DouyinUserLoginRequest)
 	resp := new(pb.DouyinUserLoginResponse)
-	if err := c.BindAndValidate(&req); err != nil {
-		c.JSON(400, err.Error())
-		return
-	}
 
-	username := req.GetUsername()
-	password := req.GetPassword()
+	username := c.Query("Username")
+	password := c.Query("Password")
 
 	user, err := mysql.FindUserByNameAndPass(username, password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
+		return
 	}
 
 	token, err := rediss.GetTokenByName(ctx, username)
 	if err != nil {
-		c.JSON(400, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	// return
-	*resp.StatusCode = common.LoginSuccess
-	*resp.StatusMsg = common.LoginSuccessMsg
-	*resp.UserId = cvt2id(user.UserID)
-	*resp.Token = token
+
+	loginsuccode := int32(common.LoginSuccess)
+	loginsucmsg := common.LoginSuccessMsg
+
+	resp.StatusCode = &loginsuccode
+	resp.StatusMsg = &loginsucmsg
+	resp.UserId = &user.UserID
+	resp.Token = &token
 
 	c.JSON(http.StatusOK, resp)
-}
-
-// cvt2id
-func cvt2id(num any) (id int64) {
-	return reflect.ValueOf(num).Int()
 }

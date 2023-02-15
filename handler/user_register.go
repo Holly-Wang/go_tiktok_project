@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"go_tiktok_project/common"
 	"go_tiktok_project/common/dal/mysql"
 	"go_tiktok_project/common/dal/rediss"
@@ -9,7 +10,6 @@ import (
 	"go_tiktok_project/service"
 	"net/http"
 
-	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -18,19 +18,19 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 
 	logs.Info("req path: ", path)
 
-	req := new(pb.DouyinUserRegisterRequest)
+	//req := new(pb.DouyinUserRegisterRequest)
 
-	if err := c.BindAndValidate(&req); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
+	username := c.Query("Username")
+	password := c.Query("Password")
+	//fmt.Println(username)
+	//fmt.Println(password)
 
-	if res := service.IsUsernameLegal(req.GetUsername()); !res {
+	if res := service.IsUsernameLegal(username); !res {
 		c.JSON(http.StatusBadRequest, "username is illegal")
 		return
 	}
 
-	res, err := service.IsUsernameExist(req.GetUsername())
+	res, err := service.IsUsernameExist(username)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -40,19 +40,19 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	userID, err := mysql.CreateUser(req.GetUsername(), req.GetPassword())
+	userID, err := mysql.CreateUser(username, password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "insert to mysql failed")
 		return
 	}
 
-	token, err := service.GenerateToken(uint64(userID), req.GetUsername())
+	token, err := service.GenerateToken(uint64(userID), username)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "generate token failed")
 		return
 	}
 
-	err = rediss.SetToken(ctx, req.GetUsername(), token)
+	err = rediss.SetToken(ctx, username, token)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -60,11 +60,13 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(pb.DouyinUserRegisterResponse)
 
-	*resp.StatusCode = common.LoginSuccess
-	*resp.StatusMsg = "register success"
-	// userid uint64 or int64?
-	*resp.UserId = cvt2id(userID)
-	*resp.Token = token
+	statuscode := int32(common.RegisterSucces)
+	statusmsg := common.RegisterSueecssMsg
+
+	resp.StatusCode = &statuscode
+	resp.StatusMsg = &statusmsg
+	resp.UserId = &userID
+	resp.Token = &token
 
 	c.JSON(http.StatusOK, resp)
 }

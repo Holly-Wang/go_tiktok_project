@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// check whether username is legal
+// IsUsernameLegal check whether username is legal
 func IsUsernameLegal(username string) bool {
 
 	pattern := `^[0-9a-z][_.0-9a-z-]{0,31}@([0-9a-z][0-9a-z-]{0,30}[0-9a-z]\.){1,4}[a-z]{2,4}$`
@@ -18,7 +18,7 @@ func IsUsernameLegal(username string) bool {
 
 }
 
-// check whether username exists
+// IsUsernameExist
 // true, nil --> user exists
 // true, err --> error
 // false, nil --> user doesn't exist

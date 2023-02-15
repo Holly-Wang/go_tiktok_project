@@ -21,6 +21,7 @@ func initRedis() {
 		Password: "",
 		DB:       0,
 	})
+
 	// used for test
 	//rdb = redis.NewClient(&redis.Options{
 	//	Addr:     "localhost:6379",

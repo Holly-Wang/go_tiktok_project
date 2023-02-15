@@ -8,6 +8,9 @@ import (
 
 // SetToken store token in redis
 func SetToken(ctx context.Context, username string, token interface{}) error {
+	if rdb == nil {
+		initRedis()
+	}
 	key := "token"
 	if username == "" {
 		return errors.New("argument is null")

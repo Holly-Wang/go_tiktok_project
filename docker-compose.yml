@@ -1,0 +1,35 @@
+version: '3.0'
+
+services:
+  mysql:
+    image: mysql
+    container_name: mysql_dev
+    ports:
+      - 3303:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "1"
+    volumes:
+      - "./common/dal/mysql/sql/:/sql/"
+      - "./common/dal/mysql/sql/init:/docker-entrypoint-initdb.d/"
+  redis:
+    image: redis
+    container_name: redis_dev
+    ports:
+      - 6379:6379
+    volumes:
+      - "./common/dal/rediss/redis:/redis/"
+      - "./common/dal/rediss/conf/redis.conf:/etc/redis/redis.conf"
+
+  build:
+    image: golang
+    container_name: tiktok
+    depends_on:
+      - mysql
+    # stdin_open: 
+    #   true
+    # tty: 
+    #   true
+    command:
+      bash /go_tiktok_project/docker-compose.sh
+    volumes:
+      - .:/go_tiktok_project

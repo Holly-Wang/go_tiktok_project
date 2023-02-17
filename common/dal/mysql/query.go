@@ -117,3 +117,68 @@ func FindLikeOfVideo(videoID int64) (int64, error) {
 	}
 	return video.LikeCount, nil
 }
+
+// 根据查询userID发布的视频列表
+func FindVideoListinVideo(userID int64) ([]*Video, error) {
+	var Video_list []*Video
+	err := db.Where("auther_id = ?", userID).Find(&Video_list)
+
+	if err.Error != nil {
+		fmt.Println("查询Videl表主键出错, error: " + err.Error.Error())
+		return nil, err.Error
+	}
+
+	return Video_list, nil
+}
+
+// 查询userID对应的user信息
+func FindUserInfoinUser(userID int64) (User, error) {
+	var user User
+	err := db.Where("user_id = ?", userID).Find(&user)
+
+	if err.Error != nil {
+		fmt.Println("查询User表主键出错, error: " + err.Error.Error())
+		return user, err.Error
+	}
+
+	return user, nil
+}
+
+// 查询user给视频的点赞次数
+func FindCountinLikes(userID int64, videoID int64) (int64, error) {
+	var total int64 = 0
+
+	err := db.Where("owner_id = ? AND video_id = ?", userID, videoID).Model(Like{}).Count(&total)
+	if err.Error != nil {
+		fmt.Println("查询like表主键出错, error: " + err.Error.Error())
+		return -1, err.Error
+	}
+
+	return total, nil
+}
+
+// 查询视频表中最大的vedio_id
+func FindMaxIdinVideos() (int64, error) {
+	var video Video
+
+	err := db.Order("video_id desc").First(&video)
+	if err.Error != nil {
+		fmt.Println("查询Video表最大id出错, error: " + err.Error.Error())
+		return -1, err.Error
+	}
+    
+	return video.VideoID, nil
+}
+
+// 查询wachter是否关注watched
+func FindCountinFollows(watcher_id int64, watched_id int64) (int64, error) {
+	var total int64 = 0
+
+	err := db.Where("watcher_id = ? AND watched_id = ?", watcher_id, watched_id).Model(Follow{}).Count(&total)
+	if err.Error != nil {
+		fmt.Println("查询follows表主键出错, error: " + err.Error.Error())
+		return -1, err.Error
+	}
+
+	return total, nil
+}

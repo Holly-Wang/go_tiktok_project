@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "go_tiktok_project/idl/pb"
 	"go_tiktok_project/service"
+	"net/http"
 	"strconv"
 
 	"go_tiktok_project/common/dal/mysql"
@@ -58,7 +59,9 @@ func Favorite(ctx context.Context, c *app.RequestContext) {
 
 func GetFavList(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: %s", path)
+	logs.Info("req path: ", string(path))
+
+	// req :=
 	// if err := c.BindAndValidate(&req); err != nil {
 	// 	c.String(400, err.Error())
 	// 	return
@@ -67,12 +70,12 @@ func GetFavList(ctx context.Context, c *app.RequestContext) {
 	userID, _ := strconv.Atoi(UserID)
 	lists, err := mysql.FindLikeList(int64(userID))
 	if err != nil {
-		c.String(400, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	resp := new(FavListOpResp)
 	resp.VideoList = lists
 	resp.StatusCode = 0
 	resp.StatusMsg = "success"
-	c.JSON(200, resp)
+	c.JSON(http.StatusOK, resp)
 }

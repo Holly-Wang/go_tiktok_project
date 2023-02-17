@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
@@ -10,29 +9,24 @@ import (
 // CreateLike 根据雪花主键插入视频的点赞表
 func CreateLike(keyID, userID, videoID int64) error {
 	like := Like{KeyID: keyID, OwnerID: userID, VideoID: videoID, LikeTime: time.Now()}
-	// 通过数据的指针来创建
-	result := db.Create(&like)
-	if result.Error != nil {
-		fmt.Println("Like表格创建数据失败: " + result.Error.Error())
-		return result.Error
+	if err := db.Create(&like).Error; err != nil {
+		logs.Error("Like表格创建数据失败, err: %v", err)
+		return err
 	}
 	return nil
 }
 
 func CreateUser(username, password string) (int64, error) {
-	var user User
-	user = User{
+	user := User{
 		Username:     username,
 		Password:     password,
 		Follower_cnt: 0,
 		Follow_cnt:   0,
 		RegisterTime: time.Now(),
 	}
-	result := db.Select("Username", "Password", "Follower_cnt", "Follow_cnt", "RegisterTime").Create(&user)
-	if result.Error != nil {
-		logs.Errorf("insert to mysql error: ", result.Error.Error())
-		//fmt.Println("User insert failed: " + result.Error.Error())
-		return 0, result.Error
+	if err := db.Select("Username", "Password", "Follower_cnt", "Follow_cnt", "RegisterTime").Create(&user).Error; err != nil {
+		logs.Errorf("insert to mysql err: %v", err)
+		return 0, err
 	}
 	return user.UserID, nil
 }
@@ -40,10 +34,9 @@ func CreateUser(username, password string) (int64, error) {
 func CreateComment(keyId, videoID, userID int64, context string, likeCount int64, isLike bool) error {
 	comment := Comment{CommentID: keyId, VideoID: videoID, UserID: userID,
 		Context: context, LikeCount: likeCount, IsLike: isLike, CommentTime: time.Now()}
-	result := db.Create(&comment)
-	if result.Error != nil {
-		fmt.Println("Comment表格创建数据失败: " + result.Error.Error())
-		return result.Error
+	if err := db.Create(&comment).Error; err != nil {
+		logs.Error("Comment表格创建数据失败: %v", err)
+		return err
 	}
 	return nil
 }

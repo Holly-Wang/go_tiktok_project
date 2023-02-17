@@ -3,6 +3,8 @@
 package main
 
 import (
+	"go_tiktok_project/common/dal/mysql"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
@@ -11,6 +13,7 @@ func main() {
 		server.WithHostPorts("0.0.0.0:6770"),
 	)
 
+	mysql.InitDB()
 	register(h)
 	h.Spin()
 }

@@ -10,8 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-//TODO:雪花主键
-func LikeTX(db *gorm.DB, userID int64, videoID int64) error { //点赞视频事务：创造关系并对视频加1
+// TODO:雪花主键
+// 点赞视频事务：创造关系并对视频加1
+func LikeTX(db *gorm.DB, userID int64, videoID int64) error {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -32,7 +33,8 @@ func LikeTX(db *gorm.DB, userID int64, videoID int64) error { //点赞视频事�
 	return tx.Commit().Error
 }
 
-func DelTX(db *gorm.DB, userID int64, videoID int64) error { //删除点赞视频事务
+// 删除点赞视频事务
+func DelTX(db *gorm.DB, userID int64, videoID int64) error {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -82,7 +84,6 @@ func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActi
 				StatusMsg:  &WA,
 			}, err
 		}
-		//TODO: 雪花主键
 		err = LikeTX(db, int64(userID), *videoID)
 		if err != nil {
 			fmt.Println("error: " + err.Error())
@@ -102,7 +103,7 @@ func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActi
 				StatusMsg:  &WA,
 			}, err
 		}
-		//先查询视频点赞数，等于0就不用减了
+		// 先查询视频点赞数，等于0就不用减了
 		likeCount, likeErr := mysql.FindLikeOfVideo(*videoID)
 		if likeErr != nil {
 			return &pb.DouyinFavoriteActionResponse{
@@ -116,7 +117,7 @@ func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActi
 				StatusMsg:  &AC,
 			}, nil
 		}
-		//点赞数大于0，减一下
+		// 点赞数大于0，减一下
 		err = DelTX(db, int64(userID), *videoID)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{

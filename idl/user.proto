@@ -21,3 +21,4 @@ message User {
   optional int64 follower_count = 4; // 粉丝总数
   required bool is_follow = 5; // true-已关注，false-未关注
 }
+

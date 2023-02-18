@@ -2,6 +2,7 @@ package main
 
 import (
 	"go_tiktok_project/common/middlewares"
+	"go_tiktok_project/common/middlewares/TokenCheck"
 	handler "go_tiktok_project/handler"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -10,7 +11,7 @@ import (
 // register registers routers.
 func register(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
-
+	r.GET("/douyin/feed/", TokenCheck.TokenCheck(), handler.GetFeedInfo)
 	r.GET("/douyin/user/", middlewares.AuthN(), handler.GetUserInfo)
 	r.GET("/douyin/favorite/list/", handler.GetFavList)
 

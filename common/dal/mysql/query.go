@@ -12,54 +12,33 @@ import (
 // FindIDinLike 失败时主键返回0和错误信息
 func FindIDinLike(userID, videoID uint64) (int64, error) {
 	var like Like
-	err := db.Where("owner_id = ? AND video_id = ?", userID, videoID).First(&like)
-	if err.Error != nil {
-		fmt.Println("查询like表主键出错, error: " + err.Error.Error())
-		return 0, err.Error
+	if err := db.Where("owner_id = ? AND video_id = ?", userID, videoID).First(&like).Error; err.Error != nil {
+		logs.Error("查询like表主键出错, err: %v", err.Error())
+		return 0, err
 	}
 	return like.KeyID, nil
 }
 
-// FindUserByName check whether username exist
-// false, nil --> user isn't found
-// false, err --> database error
-// true, nil --> user is found
-func FindUserByName(username string) (bool, error) {
-	if db == nil {
-		InitDB()
+// CheckUserExist check whether user exist
+func CheckUserExist(username string) (bool, error) {
+	var count int64
+	if err := db.Model(&User{}).Where("username = ?", username).Count(&count).Error; err != nil {
+		return false, err
 	}
-	var user User
-	err := db.Where("username = ?", username).First(&user)
-	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
-		// user isn't found
-		//fmt.Println("user doesn't exist")
-		return false, nil
-	}
-	// other error
-	if err.Error != nil {
-		return false, err.Error
-	}
-	// user is found
-	return true, nil
+	return count > 0, nil
 }
 
 func FindUserByNameAndPass(username, password string) (User, error) {
-	if db == nil {
-		InitDB()
-	}
 	var user User
-	err := db.Where("username = ?", username).First(&user)
-	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
+	err := db.Where("username = ?", username).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, errors.New("user doesn't exist")
 	}
-	if err.Error != nil {
-		logs.Errorf("mysql error during selecting: ", err.Error.Error())
-		return user, err.Error
+	if err != nil {
+		logs.Errorf("mysql error during selecting: ", err.Error())
+		return user, err
 	}
-	//fmt.Println(user.Password)
-	//fmt.Println(password)
 	if user.Password != password {
-		//fmt.Println("wrong pass")
 		return user, errors.New("wrong password")
 	}
 	return user, nil
@@ -67,13 +46,13 @@ func FindUserByNameAndPass(username, password string) (User, error) {
 
 func FindUserById(userid uint64) (User, error) {
 	var user User
-	err := db.Where("user_id = ?", userid).First(&user)
-	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
+	err := db.Where("user_id = ?", userid).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, errors.New("user doesn't exist")
 	}
-	if err.Error != nil {
-		logs.Errorf("mysql error during selecting: ", err.Error.Error())
-		return user, err.Error
+	if err != nil {
+		logs.Errorf("mysql error during selecting: ", err.Error())
+		return user, err
 	}
 	return user, nil
 }
@@ -83,7 +62,7 @@ func FindComment(videoID int64) ([]Comment, error) {
 	// select * from comments where video_id = ? order by comment_time desc
 	res := db.Where("video_id = ? ", videoID).Order("comment_time desc").Find(&comments)
 	if res.Error != nil {
-		fmt.Println("查询comment表主键出错, error: " + res.Error.Error())
+		logs.Error("查询comment表主键出错, err: ", res.Error)
 		return nil, res.Error
 	}
 	var commentss []Comment
@@ -93,12 +72,12 @@ func FindComment(videoID int64) ([]Comment, error) {
 	return commentss, nil
 }
 
-// 查询登录用户喜欢的视频列表
+// FindLikeList 查询登录用户喜欢的视频列表
 func FindLikeList(userID int64) (*[]int64, error) {
 	var likes []Like
-	res := db.Where("owner_id=?", userID).Find(&likes)
+	res := db.Where("owner_id = ?", userID).Find(&likes)
 	if res.Error != nil {
-		fmt.Println("无法获取用户喜爱列表,error: " + res.Error.Error())
+		logs.Error("无法获取用户喜爱列表, err: %V", res.Error.Error())
 		return nil, res.Error
 	}
 	var videoIDs []int64
@@ -108,15 +87,25 @@ func FindLikeList(userID int64) (*[]int64, error) {
 	return &videoIDs, nil
 }
 
-// 查询视频点赞数
+// FindLikeOfVideo 查询视频点赞数
 func FindLikeOfVideo(videoID int64) (int64, error) {
 	var video Video
-	err := db.Where("video_id=?", videoID).First(&video).Error
+	err := db.Where("video_id = ?", videoID).First(&video).Error
 	if err != nil {
 		fmt.Println("查询点赞出错, error: " + err.Error())
 		return -1, err
 	}
 	return video.LikeCount, nil
+}
+
+// CheckFollow 校验source是否关注target
+func CheckFollow(sourceID, targetID int64) (bool, error) {
+	var count int64
+	if err := db.Model(&Follow{}).Where("watcher_id = ? and watched_id = ?", sourceID, targetID).
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 // 根据查询userID发布的视频列表

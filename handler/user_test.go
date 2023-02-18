@@ -2,6 +2,6 @@ package handler
 
 import "testing"
 
-func testGetUserInfo(t *testing.T) {
+func TestGetUserInfo(t *testing.T) {
 
 }

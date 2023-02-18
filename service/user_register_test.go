@@ -1,6 +1,8 @@
 package service
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGenerateToken(t *testing.T) {
 	type args struct {
@@ -29,48 +31,7 @@ func TestGenerateToken(t *testing.T) {
 	}
 }
 
-func TestIsUsernameExist(t *testing.T) {
-	type args struct {
-		username string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    bool
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := IsUsernameExist(tt.args.username)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("IsUsernameExist() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("IsUsernameExist() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestIsUsernameLegal(t *testing.T) {
-	type args struct {
-		username string
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := IsUsernameLegal(tt.args.username); got != tt.want {
-				t.Errorf("IsUsernameLegal() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+// check username
+func TestCheckUser(t *testing.T) {
+	// TODO
 }

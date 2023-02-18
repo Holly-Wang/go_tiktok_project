@@ -1,35 +1,67 @@
 package service
 
 import (
-	"github.com/cloudwego/hertz/cmd/hz/util/logs"
-	"github.com/golang-jwt/jwt"
+	"context"
+	"fmt"
 	"go_tiktok_project/common/dal/mysql"
+	"go_tiktok_project/common/dal/rediss"
+	"go_tiktok_project/idl/pb"
 	"regexp"
 	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
-// IsUsernameLegal check whether username is legal
-func IsUsernameLegal(username string) bool {
+const (
+	pattern = `^[0-9a-z][_.0-9a-z-]{0,31}@([0-9a-z][0-9a-z-]{0,30}[0-9a-z]\.){1,4}[a-z]{2,4}$`
+)
 
-	pattern := `^[0-9a-z][_.0-9a-z-]{0,31}@([0-9a-z][0-9a-z-]{0,30}[0-9a-z]\.){1,4}[a-z]{2,4}$`
+var (
+	reg = regexp.MustCompile(pattern)
+)
 
-	reg := regexp.MustCompile(pattern)
-	return reg.MatchString(username)
+func UserRegister(ctx context.Context, req *pb.DouyinUserRegisterRequest) (*pb.DouyinUserRegisterResponse, error) {
+	if err := checkRegisterUser(*req.Username); err != nil {
+		return nil, err
+	}
 
+	userID, err := mysql.CreateUser(*req.Username, *req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := GenerateToken(uint64(userID), *req.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := rediss.SetToken(ctx, *req.Username, token); err != nil {
+		return nil, err
+	}
+
+	resp := &pb.DouyinUserRegisterResponse{
+		StatusCode: new(int32),
+		StatusMsg:  new(string),
+		UserId:     &userID,
+		Token:      &token,
+	}
+	return resp, nil
 }
 
-// IsUsernameExist
-// true, nil --> user exists
-// true, err --> error
-// false, nil --> user doesn't exist
-func IsUsernameExist(username string) (bool, error) {
-	res, err := mysql.FindUserByName(username)
-	if err != nil {
-		// database error
-		logs.Errorf("mysql error: ", err.Error())
-		return true, err
+// checkRegisterUser check register user (username legal and whether has exist)
+func checkRegisterUser(username string) error {
+	// check username legal
+	if !reg.MatchString(username) {
+		return fmt.Errorf("username is illegal")
 	}
-	return res, nil
+	// check user has exist
+	if exist, err := mysql.CheckUserExist(username); err != nil || exist {
+		if err == nil {
+			err = fmt.Errorf("user has exist")
+		}
+		return err
+	}
+	return nil
 }
 
 // GenerateToken TODO: find right place for generate token

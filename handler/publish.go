@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go_tiktok_project/common"
 	"go_tiktok_project/service"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -38,7 +39,7 @@ func GetUserVideo(ctx context.Context, c *app.RequestContext) {
 	token_user_id := int64(token_userID)
 	if err != nil {
 		logs.Errorf("鉴权token错误, error: " + err.Error())
-		c.JSON(400, douyin_publish_list_response{
+		c.JSON(http.StatusBadRequest, douyin_publish_list_response{
 			Status_code: common.TokenFailed,
 			Status_msg:  common.TokenFailedMsg,
 			Video_list:  nil,
@@ -50,7 +51,7 @@ func GetUserVideo(ctx context.Context, c *app.RequestContext) {
 	video_user_id, err := strconv.ParseInt(user, 10, 64)
 	if err != nil {
 		logs.Errorf("转换user_id为int失败, error: " + err.Error())
-		c.JSON(400, douyin_publish_list_response{
+		c.JSON(http.StatusBadRequest, douyin_publish_list_response{
 			Status_code: common.GetUserVideoFailed,
 			Status_msg:  common.GetUserVideoFailedMsg,
 			Video_list:  nil,
@@ -72,27 +73,27 @@ func GetUserVideo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	//返回respose
-	resp := new(douyin_publish_list_response)
-	resp.Status_code = common.GetUserVideoSuccess
-	resp.Status_msg = common.GetUserVideoSuccessMsg
-	resp.Video_list = video_list
+	resp := &douyin_publish_list_response{
+		Status_code: common.GetUserVideoSuccess,
+		Status_msg:  common.GetUserVideoSuccessMsg,
+		Video_list:  video_list,
+	}
 	c.JSON(consts.StatusOK, resp)
 }
 
 // 用户视频投稿
 func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: %s", path)
+	logs.Info("req path: %s", string(path))
 
 	//token鉴权
-	token, _ := c.GetPostForm("token") //认为是user_id
+	token, _ := c.GetPostForm("token") // 认为是user_id
 	// token_id, _ := strconv.ParseInt(token, 10, 64)
 	// token1, _ := service.GenerateToken(uint64(token_id), "222")
 	token_userID, err := common.Token2UserID(token)
 	user_id := int64(token_userID)
 	if err != nil {
-		logs.Errorf("鉴权token错误, error: " + err.Error())
+		logs.Errorf("鉴权token错误, err: %v", err)
 		c.JSON(400, utils.H{
 			"status_code": common.TokenFailed,
 			"status_msg":  common.TokenFailedMsg,
@@ -119,7 +120,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	//创建存储文件夹
 	_, erByStat := os.Stat(filedir)
 	if erByStat != nil {
-		logs.Errorf("os stat %s error......%s", filedir, erByStat.Error())
+		logs.Errorf("os stat %s error......%v", filedir, erByStat)
 	}
 	//该判断主要是部分文件权限问题导致os.Stat()出错,具体看业务启用
 	//使用os.IsNotExist()判断为true,说明文件夹不存在
@@ -127,7 +128,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 		logs.Info("%s is not exist", erByStat.Error())
 		err := os.MkdirAll(filedir, 0777)
 		if err != nil {
-			logs.Error("创建文件夹错误 , error:" + err.Error())
+			logs.Error("创建文件夹错误 , err: %v", err)
 			c.JSON(400, utils.H{
 				"status_code": common.PublishFailed,
 				"status_msg":  common.PublishFailedMsg,
@@ -142,7 +143,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	saveFile := filepath.Join(filedir, filename)
 	logs.Info("filepath: %s", saveFile)
 	if err := c.SaveUploadedFile(data, saveFile); err != nil {
-		logs.Error("保存视频失败,error:" + err.Error())
+		logs.Error("保存视频失败, err: %v", err)
 		c.JSON(400, utils.H{
 			"status_code": common.PublishFailed,
 			"status_msg":  common.PublishFailedMsg,
@@ -151,9 +152,9 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//service 保存视频数据到数据库
-	err_service := service.PostUserVideo(user_id, title, saveFile, filedata)
-	if err_service != nil {
-		logs.Error("server error,error :", err_service.Error())
+	err = service.PostUserVideo(user_id, title, saveFile, filedata)
+	if err != nil {
+		logs.Error("server error, err: %v", err)
 		c.JSON(400, utils.H{
 			"status_code": common.PublishFailed,
 			"status_msg":  common.PublishFailedMsg,

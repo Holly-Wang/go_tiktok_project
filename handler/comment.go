@@ -14,7 +14,7 @@ import (
 // 登录用户对视频进行评论
 func CommentAction(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: %s", path)
+	logs.Info("req path: %s", string(path))
 
 	req := new(pb_comment.DouyinCommentActionRequest)
 
@@ -36,12 +36,10 @@ func CommentAction(ctx context.Context, c *app.RequestContext) {
 	req.VideoId = &comment_id
 
 	resp, err := service.CommentActionService(req)
-
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, resp)
-
 }

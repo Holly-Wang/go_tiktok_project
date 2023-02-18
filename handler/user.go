@@ -13,7 +13,7 @@ import (
 
 func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: %s", path)
+	logs.Info("req path: %s", string(path))
 
 	req := new(pb.DouyinUserRequest)
 	if err := c.BindAndValidate(&req); err != nil {

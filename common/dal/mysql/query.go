@@ -73,18 +73,24 @@ func FindComment(videoID int64) ([]Comment, error) {
 }
 
 // FindLikeList 查询登录用户喜欢的视频列表
-func FindLikeList(userID int64) (*[]int64, error) {
+func FindLikeList(userID int64) ([]Video, error) {
 	var likes []Like
 	res := db.Where("owner_id = ?", userID).Find(&likes)
 	if res.Error != nil {
 		logs.Error("无法获取用户喜爱列表, err: %V", res.Error.Error())
 		return nil, res.Error
 	}
-	var videoIDs []int64
+	var videos []Video
 	for i := 0; i < int(res.RowsAffected); i++ {
-		videoIDs = append(videoIDs, likes[i].VideoID)
+		var tmpVideo Video
+		res := db.Where("video_id=?", likes[i].VideoID).First(&tmpVideo)
+		if res.Error != nil {
+			logs.Error("无法获取用户喜爱列表, err: %V", res.Error.Error())
+			return nil, res.Error
+		}
+		videos = append(videos, tmpVideo)
 	}
-	return &videoIDs, nil
+	return videos, nil
 }
 
 // FindLikeOfVideo 查询视频点赞数

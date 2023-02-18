@@ -48,12 +48,9 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 	}
 
 	for _, v := range video_sql {
-
 		video := &Video{
 			Id: v.VideoID,
-			Author: User{
-				Id: v.AutherID,
-			},
+			//Author:         *v.Author,
 			Play_url:       v.PlayUrl,
 			Cover_url:      v.CoverUrl,
 			Favorite_count: v.LikeCount,

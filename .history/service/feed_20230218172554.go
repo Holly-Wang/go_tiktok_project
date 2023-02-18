@@ -8,6 +8,26 @@ import (
 	"time"
 )
 
+type User struct {
+	UserID       int64 `gorm:"primaryKey"`
+	Username     string
+	Password     string
+	NickName     string
+	Follower_cnt int64
+	Follow_cnt   int64
+	RegisterTime time.Time
+}
+
+type Video struct {
+	VideoID      int64 `gorm:"primaryKey"`
+	AutherID     int64
+	PlayUrl      string
+	CoverUrl     string
+	LikeCount    int64
+	CommentCount int64
+	Title        string
+	Abstract     string
+}
 type Reponse struct {
 	StatusCode    int64  `gorm:"status_code"`
 	StatusMessage string `status`
@@ -28,7 +48,13 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 	var FailCode int32 = 0
 	var StatusMessage string = "1"
 	model.InitDB()
+	//sql_video := "select * from videos order by video_id limit 3"
+	//sql_auther := "select * from users where user_id =?"
+	//sql_follow := "SELECT count(key_id) FROM `follows` WHERE watcher_id=? and watched_id=?"
+	//sql_like := "SELECT count(key_id) FROM `likes` WHERE owner_id=? and video_id=?"
+	//sql_getid := "SELECT user_id FROM `users` WHERE username=?"
 	videos := []Video{}
+	var Auther User
 	var userName string
 	var userId int64
 	userName = userInfo.Username
@@ -39,7 +65,7 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 			StatusMsg:  &StatusMessage,
 		}, err
 	}
-	video_sql, err_2 := model.FindVideoList()
+	videos, err_2 := model.FindVideoList()
 	if err_2 != nil {
 		return &pb_feed.DouyinFeedResponse{
 			StatusCode: &FailCode,
@@ -47,27 +73,9 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 		}, err_2
 	}
 
-	for _, v := range video_sql {
-
-		video := &Video{
-			Id: v.VideoID,
-			Author: User{
-				Id: v.AutherID,
-			},
-			Play_url:       v.PlayUrl,
-			Cover_url:      v.CoverUrl,
-			Favorite_count: v.LikeCount,
-			Comment_count:  v.CommentCount,
-			//Is_favorite:    v.isLike,
-			Title:    v.Title,
-			Abstract: v.Abstract,
-		}
-		videos = append(videos, *video)
-	}
-
 	for i := 0; i < len(videos); i++ {
-		Auther_ID := videos[i].Author.Id
-		Video_ID := videos[i].Id
+		Auther_ID := videos[i].AutherID
+		Video_ID := videos[i].VideoID
 		var isLike bool
 		var isFollow bool
 		//	Video_ID := videos[i].VideoID
@@ -93,7 +101,7 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 			}, err_3
 		}
 		var UserReturn pb_feed.User = pb_feed.User{
-			Id:            &videos[i].Author.Id,
+			Id:            &videos[i].AutherID,
 			Name:          &Auther.Username,
 			FollowCount:   &Auther.Follow_cnt,
 			FollowerCount: &Auther.Follower_cnt,
@@ -102,21 +110,25 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 		print(*UserReturn.IsFollow)
 		//user_id := auther.UserID
 		var VideoResponse pb_feed.Video = pb_feed.Video{
-			Id:            &videos[i].Id,
+			Id:            &videos[i].VideoID,
 			Author:        &UserReturn,
-			PlayUrl:       &videos[i].Play_url,
-			CoverUrl:      &videos[i].Cover_url,
-			FavoriteCount: &videos[i].Favorite_count,
-			CommentCount:  &videos[i].Comment_count,
+			PlayUrl:       &videos[i].PlayUrl,
+			CoverUrl:      &videos[i].CoverUrl,
+			FavoriteCount: &videos[i].LikeCount,
+			CommentCount:  &videos[i].CommentCount,
 			Title:         &videos[i].Title,
 			IsFavorite:    &isLike,
 		}
 		VideoReturnList = append(VideoReturnList, &VideoResponse)
 		//fmt.Println(auther)
 	}
+	var a int32
+	a = 0
 	var Nexttime int64
+	var StatusMessage string
+	StatusMessage = "1"
 	Nexttime = time.Now().Unix()
-	resp.StatusCode = &SuccessCode
+	resp.StatusCode = &a
 	resp.VideoList = VideoReturnList
 	resp.NextTime = &Nexttime
 	resp.StatusMsg = &StatusMessage

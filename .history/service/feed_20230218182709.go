@@ -6,6 +6,8 @@ import (
 	model "go_tiktok_project/common/dal/mysql"
 	pb_feed "go_tiktok_project/idl/pb_feed"
 	"time"
+
+	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 )
 
 type Reponse struct {
@@ -48,12 +50,9 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 	}
 
 	for _, v := range video_sql {
-
 		video := &Video{
-			Id: v.VideoID,
-			Author: User{
-				Id: v.AutherID,
-			},
+			Id:             v.VideoID,
+			Author:         v.Author,
 			Play_url:       v.PlayUrl,
 			Cover_url:      v.CoverUrl,
 			Favorite_count: v.LikeCount,
@@ -72,6 +71,7 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 		var isFollow bool
 		//	Video_ID := videos[i].VideoID
 		isFollow, err := model.FindFollow(userId, Auther_ID)
+		logs.Info(userId, Auter_ID, isFollow)
 		if err != nil {
 			return &pb_feed.DouyinFeedResponse{
 				StatusCode: &FailCode,

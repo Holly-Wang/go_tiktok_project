@@ -28,7 +28,13 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 	var FailCode int32 = 0
 	var StatusMessage string = "1"
 	model.InitDB()
+	//sql_video := "select * from videos order by video_id limit 3"
+	//sql_auther := "select * from users where user_id =?"
+	//sql_follow := "SELECT count(key_id) FROM `follows` WHERE watcher_id=? and watched_id=?"
+	//sql_like := "SELECT count(key_id) FROM `likes` WHERE owner_id=? and video_id=?"
+	//sql_getid := "SELECT user_id FROM `users` WHERE username=?"
 	videos := []Video{}
+	var Auther User
 	var userName string
 	var userId int64
 	userName = userInfo.Username
@@ -48,19 +54,16 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 	}
 
 	for _, v := range video_sql {
-
 		video := &Video{
-			Id: v.VideoID,
-			Author: User{
-				Id: v.AutherID,
-			},
+			Id:             v.VideoID,
+			Author:         *user,
 			Play_url:       v.PlayUrl,
 			Cover_url:      v.CoverUrl,
 			Favorite_count: v.LikeCount,
 			Comment_count:  v.CommentCount,
-			//Is_favorite:    v.isLike,
-			Title:    v.Title,
-			Abstract: v.Abstract,
+			Is_favorite:    isLike,
+			Title:          v.Title,
+			Abstract:       v.Abstract,
 		}
 		videos = append(videos, *video)
 	}
@@ -93,7 +96,7 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 			}, err_3
 		}
 		var UserReturn pb_feed.User = pb_feed.User{
-			Id:            &videos[i].Author.Id,
+			Id:            &videos[i].AutherID,
 			Name:          &Auther.Username,
 			FollowCount:   &Auther.Follow_cnt,
 			FollowerCount: &Auther.Follower_cnt,
@@ -102,12 +105,12 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 		print(*UserReturn.IsFollow)
 		//user_id := auther.UserID
 		var VideoResponse pb_feed.Video = pb_feed.Video{
-			Id:            &videos[i].Id,
+			Id:            &videos[i].VideoID,
 			Author:        &UserReturn,
-			PlayUrl:       &videos[i].Play_url,
-			CoverUrl:      &videos[i].Cover_url,
-			FavoriteCount: &videos[i].Favorite_count,
-			CommentCount:  &videos[i].Comment_count,
+			PlayUrl:       &videos[i].PlayUrl,
+			CoverUrl:      &videos[i].CoverUrl,
+			FavoriteCount: &videos[i].LikeCount,
+			CommentCount:  &videos[i].CommentCount,
 			Title:         &videos[i].Title,
 			IsFavorite:    &isLike,
 		}

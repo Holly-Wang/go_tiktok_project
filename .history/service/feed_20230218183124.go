@@ -51,7 +51,7 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 
 		video := &Video{
 			Id: v.VideoID,
-			Author: User{
+			Author: &User{
 				Id: v.AutherID,
 			},
 			Play_url:       v.PlayUrl,

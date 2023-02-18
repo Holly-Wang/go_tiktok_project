@@ -1,7 +1,7 @@
 syntax = "proto2";
-package douyin.extra.second;
+package douyin.core;
 
-option go_package = "pb_feed/";
+option go_package = "pb/";
 
 message douyin_feed_request {
   optional int64 latest_time = 1; // 可选参数，限制返回视频的最新投稿时间戳，精确到秒，不填表示当前时间

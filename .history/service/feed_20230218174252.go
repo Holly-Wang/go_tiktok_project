@@ -29,6 +29,7 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 	var StatusMessage string = "1"
 	model.InitDB()
 	videos := []Video{}
+	var Auther User
 	var userName string
 	var userId int64
 	userName = userInfo.Username
@@ -48,12 +49,9 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 	}
 
 	for _, v := range video_sql {
-
 		video := &Video{
 			Id: v.VideoID,
-			Author: User{
-				Id: v.AutherID,
-			},
+			//Author:         *v.Author,
 			Play_url:       v.PlayUrl,
 			Cover_url:      v.CoverUrl,
 			Favorite_count: v.LikeCount,
@@ -93,7 +91,7 @@ func GetFeedInfo(ctx context.Context, req *pb_feed.DouyinFeedRequest, userInfo *
 			}, err_3
 		}
 		var UserReturn pb_feed.User = pb_feed.User{
-			Id:            &videos[i].Author.Id,
+			Id:            &videos[i].AutherID,
 			Name:          &Auther.Username,
 			FollowCount:   &Auther.Follow_cnt,
 			FollowerCount: &Auther.Follower_cnt,

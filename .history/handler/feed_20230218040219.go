@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"go_tiktok_project/common/authenticate"
-	pb_feed "go_tiktok_project/idl/pb_feed"
+	pb "go_tiktok_project/idl/pb"
 	"go_tiktok_project/service"
 
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
@@ -16,7 +16,7 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 
 	logs.Info("req path: %s", path)
 
-	req := new(pb_feed.DouyinFeedRequest)
+	req := new(pb.DouyinFeedRequest)
 	if err := c.BindAndValidate(&req); err != nil {
 		c.String(400, err.Error())
 		return

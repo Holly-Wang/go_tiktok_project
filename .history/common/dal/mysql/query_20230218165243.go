@@ -187,10 +187,10 @@ func FindCountinFollows(watcher_id int64, watched_id int64) (int64, error) {
 // 返回视频列表
 func FindVideoList() ([]*Video, error) {
 	var Video_list []*Video
-	err := db.Raw("select * from videos order by video_id limit 30").Scan(&Video_list)
+	err := db.Raw("select * from videos order by video_id limit 30").Scan(Video_list)
 	if err.Error != nil {
 		fmt.Println("获取视频列表错误, error: " + err.Error.Error())
-		return Video_list, err.Error
+		return -1, err.Error
 	}
 
 	return Video_list, nil
@@ -199,7 +199,7 @@ func FindVideoList() ([]*Video, error) {
 // 根据username找id
 func FinduserNameById(userName string) (int64, error) {
 	var userId int64
-	err := db.Raw("SELECT user_id FROM `users` WHERE username=?", userName).Scan(&userId)
+	err := db.Raw("SELECT user_id FROM `users` WHERE username=?", userName).Scan(userId)
 	if err.Error != nil {
 		fmt.Println("获取用户ID出错, error: " + err.Error.Error())
 		return -1, err.Error

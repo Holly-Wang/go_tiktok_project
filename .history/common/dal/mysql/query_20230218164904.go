@@ -187,10 +187,10 @@ func FindCountinFollows(watcher_id int64, watched_id int64) (int64, error) {
 // 返回视频列表
 func FindVideoList() ([]*Video, error) {
 	var Video_list []*Video
-	err := db.Raw("select * from videos order by video_id limit 30").Scan(&Video_list)
+	err := db.Raw("select * from videos order by video_id limit 30").Scan(Video_list)
 	if err.Error != nil {
 		fmt.Println("获取视频列表错误, error: " + err.Error.Error())
-		return Video_list, err.Error
+		return -1, err.Error
 	}
 
 	return Video_list, nil
@@ -199,7 +199,7 @@ func FindVideoList() ([]*Video, error) {
 // 根据username找id
 func FinduserNameById(userName string) (int64, error) {
 	var userId int64
-	err := db.Raw("SELECT user_id FROM `users` WHERE username=?", userName).Scan(&userId)
+	err := db.Raw("SELECT user_id FROM `users` WHERE username=?", userName).Scan(userId)
 	if err.Error != nil {
 		fmt.Println("获取用户ID出错, error: " + err.Error.Error())
 		return -1, err.Error
@@ -209,37 +209,4 @@ func FinduserNameById(userName string) (int64, error) {
 }
 
 // 查询follow关系
-func FindFollow(user_1 int64, user_2 int64) (bool, error) {
-	var isFollow bool
-	var countFollow int64
-	sql_follow := "SELECT count(key_id) FROM `follows` WHERE watcher_id=? and watched_id=?"
-	err := db.Raw(sql_follow, user_1, user_2).Scan(&countFollow)
-	if err.Error != nil {
-		fmt.Println("获取关注关系出错, error: " + err.Error.Error())
-		return false, err.Error
-	}
-	if countFollow > 0 {
-		isFollow = true
-	} else {
-		isFollow = false
-	}
-	return isFollow, nil
-}
-
-// 查询喜欢视频关系
-func FindLike(userId int64, videoId int64) (bool, error) {
-	var isLike bool
-	var countLike int64
-	sql_like := "SELECT count(key_id) FROM `likes` WHERE owner_id=? and video_id=?"
-	err := db.Raw(sql_like, userId, videoId).Scan(&countLike)
-	if err.Error != nil {
-		fmt.Println("获取喜欢关系出错, error: " + err.Error.Error())
-		return false, err.Error
-	}
-	if countLike > 0 {
-		isLike = true
-	} else {
-		isLike = false
-	}
-	return isLike, nil
-}
+func FindFollow(user_1 int64, user_2 int64) (bool, error)

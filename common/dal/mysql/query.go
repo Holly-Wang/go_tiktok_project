@@ -106,6 +106,8 @@ func CheckFollow(sourceID, targetID int64) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
 // 根据查询userID发布的视频列表
 func FindVideoListinVideo(userID int64) ([]*Video, error) {
 	var Video_list []*Video
@@ -154,7 +156,7 @@ func FindMaxIdinVideos() (int64, error) {
 		fmt.Println("查询Video表最大id出错, error: " + err.Error.Error())
 		return -1, err.Error
 	}
-    
+
 	return video.VideoID, nil
 }
 

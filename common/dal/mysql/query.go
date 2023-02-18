@@ -28,7 +28,7 @@ func CheckUserExist(username string) (bool, error) {
 	return count > 0, nil
 }
 
-func FindUserByNameAndPass(username, password string) (User, error) {
+func FindUserByNameAndPass(username string) (User, error) {
 	var user User
 	err := db.Where("username = ?", username).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -37,9 +37,6 @@ func FindUserByNameAndPass(username, password string) (User, error) {
 	if err != nil {
 		logs.Errorf("mysql error during selecting: ", err.Error())
 		return user, err
-	}
-	if user.Password != password {
-		return user, errors.New("wrong password")
 	}
 	return user, nil
 }

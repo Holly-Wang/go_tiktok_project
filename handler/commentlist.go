@@ -20,7 +20,7 @@ type CommentListResponse struct {
 // 查看视频的所有评论，按发布时间倒序
 func CommentList(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: %s", path)
+	logs.Info("req path: %s", string(path))
 
 	model.InitDB()
 

@@ -11,17 +11,14 @@ import (
 )
 
 func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
-
 	path := c.Request.Path()
-
-	logs.Info("req path: %s", path)
+	logs.Info("req path: %s", string(path))
 
 	req := new(pb_feed.DouyinFeedRequest)
 	if err := c.BindAndValidate(&req); err != nil {
 		c.String(400, err.Error())
 		return
 	}
-	//var userInfo authenticate.UserInfo
 	var userInfo *authenticate.UserInfo
 	var userInfo_get, err_bool = c.Get(authenticate.ReqUserInfoKey)
 	if err_bool != true {
@@ -38,5 +35,4 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	c.JSON(200, resp)
-
 }

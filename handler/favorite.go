@@ -28,7 +28,7 @@ type FavListReq struct {
 
 func Favorite(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: %s", path)
+	logs.Info("req path: %s", string(path))
 
 	req := new(pb.DouyinFavoriteActionRequest)
 	ActionType := c.Query("action_type")
@@ -63,7 +63,7 @@ func GetFavList(ctx context.Context, c *app.RequestContext) {
 
 	// req :=
 	// if err := c.BindAndValidate(&req); err != nil {
-	// 	c.String(400, err.Error())
+	// 	c.String(http.StatusBadRequest, err.Error())
 	// 	return
 	// }
 	UserID := c.Query("user_id")

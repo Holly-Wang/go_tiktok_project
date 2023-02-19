@@ -35,21 +35,15 @@ go build -o tiktok && ./tiktok
 
 ## Generate pb
 
-proto 文件需要包含 `option go_package = "pb/";`
+proto files must add `option go_package = "pb/";` and are included in `./idl`
 
-可以将 proto 文件放入 idl 目录下，运行命令：
+so you can use this cmd to generate *.pb.go files 
 
 ``` bash
-protoc idl/{name}.proto --go_out=./idl
+cd idl
+
+hz model -idl service.proto
 ```
-
-## 
-
-hertz-examples: https://github.com/cloudwego/hertz-examples
-
-## Badge
-
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 ## Contributing
 

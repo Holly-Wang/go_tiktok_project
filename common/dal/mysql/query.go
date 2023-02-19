@@ -44,9 +44,9 @@ func FindUserByNameAndPass(username, password string) (User, error) {
 	return user, nil
 }
 
-func FindUserById(userid uint64) (User, error) {
+func FindUserById(userID uint64) (User, error) {
 	var user User
-	err := db.Where("user_id = ?", userid).First(&user).Error
+	err := db.Where("user_id = ?", userID).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, errors.New("user doesn't exist")
 	}
@@ -73,7 +73,7 @@ func FindComment(videoID int64) ([]Comment, error) {
 }
 
 // FindLikeList 查询登录用户喜欢的视频列表
-func FindLikeList(userID int64) (*[]int64, error) {
+func FindLikeList(userID int64) ([]int64, error) {
 	var likes []Like
 	res := db.Where("owner_id = ?", userID).Find(&likes)
 	if res.Error != nil {
@@ -84,7 +84,7 @@ func FindLikeList(userID int64) (*[]int64, error) {
 	for i := 0; i < int(res.RowsAffected); i++ {
 		videoIDs = append(videoIDs, likes[i].VideoID)
 	}
-	return &videoIDs, nil
+	return videoIDs, nil
 }
 
 // FindLikeOfVideo 查询视频点赞数

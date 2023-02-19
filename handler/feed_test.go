@@ -4,21 +4,18 @@ import (
 	"context"
 	"fmt"
 	"go_tiktok_project/common/authenticate"
-	"go_tiktok_project/common/middlewares/TokenCheck"
-	"go_tiktok_project/idl/pb_feed"
+	pb "go_tiktok_project/idl/biz/model/pb"
 	"go_tiktok_project/service"
 	"testing"
 )
 
 func TestGetFeedInfo(t *testing.T) {
-	var req = new(pb_feed.DouyinFeedRequest)
+	var req = new(pb.DouyinFeedRequest)
 	var User = new(authenticate.UserInfo)
 	var tokenString string
 	name := "4"
-	ps := "5"
-	tokenString, _ = TokenCheck.GenToken(name, ps)
-	fmt.Println(tokenString)
-	req.Token = &tokenString
+	tokenString, _ = authenticate.GenToken(1, name)
+	req.Token = tokenString
 	User.Username = "2"
 	fmt.Println(service.GetFeedInfo(context.Background(), req, User))
 }

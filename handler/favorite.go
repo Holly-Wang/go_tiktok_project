@@ -2,10 +2,9 @@ package handler
 
 import (
 	"context"
-	pb "go_tiktok_project/idl/pb"
+	pb "go_tiktok_project/idl/biz/model/pb"
 	"go_tiktok_project/service"
 	"net/http"
-	"strconv"
 
 	"go_tiktok_project/common/dal/mysql"
 
@@ -13,69 +12,54 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
-//点赞操作的response在favorite.pb.go里生成了，DouyinFavoriteActionResponse
-//点赞列表
-type FavListOpResp struct {
-	StatusCode int32       `json:"status_code"`
-	StatusMsg  string      `json:"status_msg"`
-	VideoList  interface{} `json:"video_list"`
-}
-
-type FavListReq struct {
-	UserID int64  `json:"user_id"`
-	Token  string `json:"token"`
-}
-
 func Favorite(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: %s", string(path))
 
 	req := new(pb.DouyinFavoriteActionRequest)
-	ActionType := c.Query("action_type")
-	actionType_n, _ := strconv.Atoi(ActionType)
-	actionType := int32(actionType_n)
-	req.ActionType = &actionType
-	vidio_id := c.Query("video_id")
-	vidioid, _ := strconv.Atoi(vidio_id)
-	video_id := int64(vidioid)
-	req.VideoId = &video_id
-	token := c.Query("token")
-	req.Token = &token
-
-	//校验并解析请求
-	// if err := c.BindAndValidate(&req); err != nil {
-	// 	c.String(400, err.Error())
-	// 	return
-	// }
-	logs.Info("req actiontype:%v", req.ActionType)
-	resp, err := service.FavoriteAction(req)
-	if err != nil {
-		c.String(400, err.Error())
+	if err := c.BindAndValidate(&req); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(200, resp)
+	// TODO(liuyiyang): 添加中间件，自动打印接口日志 Req 和 Resp 时延
+	resp, err := service.FavoriteAction(req)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func GetFavList(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: ", string(path))
 
-	// req :=
-	// if err := c.BindAndValidate(&req); err != nil {
-	// 	c.String(http.StatusBadRequest, err.Error())
-	// 	return
-	// }
-	UserID := c.Query("user_id")
-	userID, _ := strconv.Atoi(UserID)
-	lists, err := mysql.FindLikeList(int64(userID))
+	req := new(pb.DouyinFavoriteListRequest)
+	if err := c.BindAndValidate(&req); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	videoIDs, err := mysql.FindLikeList(int64(req.UserId))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	resp := new(FavListOpResp)
-	resp.VideoList = lists
-	resp.StatusCode = 0
-	resp.StatusMsg = "success"
+
+	resp := new(pb.DouyinFavoriteListResponse)
+	resp.VideoList = convertFavoriteList(videoIDs)
 	c.JSON(http.StatusOK, resp)
+}
+
+// TODO(liuyiyang): 完善video信息
+func convertFavoriteList(videoIDs []int64) []*pb.Video {
+	var ret []*pb.Video
+	for _, id := range videoIDs {
+		ret = append(ret, &pb.Video{
+			Id: id,
+		})
+	}
+	return ret
 }

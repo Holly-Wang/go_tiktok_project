@@ -9,6 +9,8 @@ import (
 	"go_tiktok_project/idl/biz/model/pb"
 	"regexp"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 )
 
@@ -20,12 +22,22 @@ var (
 	reg = regexp.MustCompile(pattern)
 )
 
+func generateCipher(pwd string) ([]byte, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	return hash, err
+}
+
 func UserRegister(ctx context.Context, req *pb.DouyinUserRegisterRequest) (*pb.DouyinUserRegisterResponse, error) {
 	if err := checkRegisterUser(req.Username); err != nil {
 		return nil, err
 	}
 
-	userID, err := mysql.CreateUser(req.Username, req.Password)
+	cipher, err := generateCipher(req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	userID, err := mysql.CreateUser(req.Username, string(cipher))
 	if err != nil {
 		return nil, err
 	}

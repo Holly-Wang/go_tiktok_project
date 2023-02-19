@@ -53,12 +53,17 @@ func GetFavList(ctx context.Context, c *app.RequestContext) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// TODO(liuyiyang): 完善video信息
-func convertFavoriteList(videoIDs []int64) []*pb.Video {
+func convertFavoriteList(videos []mysql.Video) []*pb.Video {
 	var ret []*pb.Video
-	for _, id := range videoIDs {
+	for _, v := range videos {
 		ret = append(ret, &pb.Video{
-			Id: id,
+			Id:            v.VideoID,
+			Author:        &pb.User{},
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.LikeCount,
+			CommentCount:  v.CommentCount,
+			Title:         v.Title,
 		})
 	}
 	return ret

@@ -3,6 +3,7 @@ package douyin.core;
 
 option go_package = "pb/";
 import "common.proto";
+import "api.proto";
 
 message douyin_comment_action_request {
   string token = 1; // 用户鉴权token
@@ -19,8 +20,8 @@ message douyin_comment_action_response {
 }
 
 message douyin_comment_list_request {
-  string token = 1; // 用户鉴权token
-  int64 video_id = 2; // 视频id
+  string token = 1 [(api.query) = "token"]; // 用户鉴权token
+  int64 video_id = 2 [(api.query) = "video_id"]; // 视频id
 }
 
 message douyin_comment_list_response {

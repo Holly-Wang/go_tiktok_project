@@ -18,8 +18,8 @@ message douyin_user_response {
 }
 
 message douyin_user_login_request {
-  string username = 1; // 登录用户名
-  string password = 2; // 登录密码
+  string username = 1 [(api.query) = "username"]; // 登录用户名
+  string password = 2 [(api.query) = "password"]; // 登录密码
 }
 
 message douyin_user_login_response {
@@ -30,8 +30,8 @@ message douyin_user_login_response {
 }
 
 message douyin_user_register_request {
-  string username = 1; // 注册用户名，最长32个字符
-  string password = 2; // 密码，最长32个字符
+  string username = 1 [(api.query) = "username"]; // 注册用户名，最长32个字符
+  string password = 2 [(api.query) = "password"]; // 密码，最长32个字符
 }
 
 message douyin_user_register_response {

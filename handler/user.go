@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"go_tiktok_project/common/authenticate"
-	pb "go_tiktok_project/idl/pb"
+	pb "go_tiktok_project/idl/biz/model/pb"
 	"go_tiktok_project/service"
 	"net/http"
 

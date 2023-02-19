@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	pb "go_tiktok_project/idl/pb"
+	pb "go_tiktok_project/idl/biz/model/pb"
 	service "go_tiktok_project/service"
 	"net/http"
 
@@ -12,7 +12,7 @@ import (
 
 func UserLogin(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: ", string(path))
+	logs.Info("req path: %s", string(path))
 
 	req := new(pb.DouyinUserLoginRequest)
 	if err := c.BindAndValidate(&req); err != nil {

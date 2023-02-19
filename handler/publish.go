@@ -6,11 +6,12 @@ import (
 	"context"
 	"fmt"
 	"go_tiktok_project/common"
+	"go_tiktok_project/common/authenticate"
+	"go_tiktok_project/idl/biz/model/pb"
 	"go_tiktok_project/service"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
@@ -19,64 +20,38 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
-// 生成pb会显示有冲突，就在这里构造了结构体
-type douyin_publish_list_response struct {
-	Status_code int32           `protobuf:"varint,1,req,name=status_code" json:"status_code"`              // 状态码，0-成功，其他值-失败
-	Status_msg  string          `protobuf:"bytes,2,opt,name=status_msg,json=status_msg" json:"status_msg"` // 返回状态描述
-	Video_list  []service.Video `protobuf:"varint,3,req,name=video_list" json:"video_list"`                // 用户发布的视频列表
-}
-
 // 获得发布列表
 func GetUserVideo(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: %s", path)
+	logs.Info("req path: %s", string(path))
 
-	//token鉴权
-	token := c.Query("token")
-	// token_id, _ := strconv.ParseInt(token, 10, 64)
-	// token1, _ := service.GenerateToken(uint64(token_id), "222")
-	token_userID, err := common.Token2UserID(token)
-	token_user_id := int64(token_userID)
-	if err != nil {
-		logs.Errorf("鉴权token错误, error: " + err.Error())
-		c.JSON(http.StatusBadRequest, douyin_publish_list_response{
-			Status_code: common.TokenFailed,
-			Status_msg:  common.TokenFailedMsg,
-			Video_list:  nil,
-		})
+	req := new(pb.DouyinPublishListRequest)
+	if err := c.BindAndValidate(&req); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user := c.Query("user_id")
-	video_user_id, err := strconv.ParseInt(user, 10, 64)
+	userInfo, err := authenticate.GetAuthUserInfo(c)
 	if err != nil {
-		logs.Errorf("转换user_id为int失败, error: " + err.Error())
-		c.JSON(http.StatusBadRequest, douyin_publish_list_response{
-			Status_code: common.GetUserVideoFailed,
-			Status_msg:  common.GetUserVideoFailedMsg,
-			Video_list:  nil,
-		})
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-
-	logs.Info("token_user_id: %s", token_user_id)
 
 	//获取用户发布列表
-	video_list, err := service.GetUserVideo(video_user_id, token_user_id)
+	video_list, err := service.GetUserVideo(req.UserId, userInfo.UserID)
 	if err != nil {
 		logs.Errorf("service err, error: " + err.Error())
-		c.JSON(400, douyin_publish_list_response{
-			Status_code: common.GetUserVideoFailed,
-			Status_msg:  common.GetUserVideoFailedMsg,
-			Video_list:  nil,
+		c.JSON(http.StatusBadRequest, pb.DouyinPublishListResponse{
+			StatusCode: common.GetUserVideoFailed,
+			StatusMsg:  common.GetUserVideoFailedMsg,
 		})
 		return
 	}
 
-	resp := &douyin_publish_list_response{
-		Status_code: common.GetUserVideoSuccess,
-		Status_msg:  common.GetUserVideoSuccessMsg,
-		Video_list:  video_list,
+	resp := &pb.DouyinPublishListResponse{
+		StatusCode: common.GetUserVideoSuccess,
+		StatusMsg:  common.GetUserVideoSuccessMsg,
+		VideoList:  video_list,
 	}
 	c.JSON(consts.StatusOK, resp)
 }
@@ -86,23 +61,18 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: %s", string(path))
 
-	//token鉴权
-	token, _ := c.GetPostForm("token") // 认为是user_id
-	// token_id, _ := strconv.ParseInt(token, 10, 64)
-	// token1, _ := service.GenerateToken(uint64(token_id), "222")
-	token_userID, err := common.Token2UserID(token)
-	user_id := int64(token_userID)
-	if err != nil {
-		logs.Errorf("鉴权token错误, err: %v", err)
-		c.JSON(400, utils.H{
-			"status_code": common.TokenFailed,
-			"status_msg":  common.TokenFailedMsg,
-		})
+	req := new(pb.DouyinPublishActionRequest)
+	if err := c.BindAndValidate(&req); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	logs.Info("user_id: %s", user_id)
 
-	title, _ := c.GetPostForm("title")
+	userInfo, err := authenticate.GetAuthUserInfo(c)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	data, err := c.FormFile("data")
 	if err != nil {
 		panic(err)
@@ -112,8 +82,8 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	filename := filepath.Base(data.Filename)
 	fileInfo := strings.Split(filename, ".")
 	filedir := fileInfo[0]
-	filedata := fmt.Sprintf("uesr:%d  video:%s", user_id, filename)
-	filedir = fmt.Sprintf("./video_data/%s/%s", token, filedir)
+	filedata := fmt.Sprintf("uesr:%d  video:%s", userInfo.UserID, filename)
+	filedir = fmt.Sprintf("./video_data/%s/%s", req.Token, filedir)
 	logs.Info("file: %s", data.Filename)
 	logs.Info("filedir: %s", filedir)
 
@@ -129,7 +99,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 		err := os.MkdirAll(filedir, 0777)
 		if err != nil {
 			logs.Error("创建文件夹错误 , err: %v", err)
-			c.JSON(400, utils.H{
+			c.JSON(http.StatusBadRequest, utils.H{
 				"status_code": common.PublishFailed,
 				"status_msg":  common.PublishFailedMsg,
 			})
@@ -144,7 +114,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	logs.Info("filepath: %s", saveFile)
 	if err := c.SaveUploadedFile(data, saveFile); err != nil {
 		logs.Error("保存视频失败, err: %v", err)
-		c.JSON(400, utils.H{
+		c.JSON(http.StatusBadRequest, utils.H{
 			"status_code": common.PublishFailed,
 			"status_msg":  common.PublishFailedMsg,
 		})
@@ -152,10 +122,10 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//service 保存视频数据到数据库
-	err = service.PostUserVideo(user_id, title, saveFile, filedata)
+	err = service.PostUserVideo(userInfo.UserID, req.Title, saveFile, filedata)
 	if err != nil {
 		logs.Error("server error, err: %v", err)
-		c.JSON(400, utils.H{
+		c.JSON(http.StatusBadRequest, utils.H{
 			"status_code": common.PublishFailed,
 			"status_msg":  common.PublishFailedMsg,
 		})

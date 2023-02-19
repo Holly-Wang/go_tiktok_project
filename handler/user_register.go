@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	pb "go_tiktok_project/idl/pb"
+	pb "go_tiktok_project/idl/biz/model/pb"
 	"go_tiktok_project/service"
 	"net/http"
 
@@ -13,13 +13,14 @@ import (
 
 func UserRegister(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
-	logs.Info("req path: ", string(path))
+	logs.Info("req path: %s", string(path))
 
 	req := new(pb.DouyinUserRegisterRequest)
 	if err := c.BindAndValidate(&req); err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
+	logs.Infof("req: %s, %s", req.Username, req.Password)
 
 	resp, err := service.UserRegister(ctx, req)
 	if err != nil {

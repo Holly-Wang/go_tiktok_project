@@ -2,8 +2,9 @@ package service
 
 import (
 	"fmt"
+	"go_tiktok_project/common/authenticate"
 	model "go_tiktok_project/common/dal/mysql"
-	pb_comment "go_tiktok_project/idl/pb_comment"
+	pb "go_tiktok_project/idl/biz/model/pb"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,14 +16,14 @@ func TestContCreate(t *testing.T) {
 	var videoID int64 = 1
 	var commentid int64 = 5
 	var commenttext string = "哈哈哈哈"
-	req := new(pb_comment.DouyinCommentActionRequest)
-	req.ActionType = &create
-	token, Err := GenerateToken(2, "4")
+	req := new(pb.DouyinCommentActionRequest)
+	req.ActionType = create
+	token, Err := authenticate.GenToken(2, "4")
 	assert.NoError(t, Err)
-	req.Token = &token
-	req.VideoId = &videoID
-	req.CommentId = &commentid
-	req.CommentText = &commenttext
+	req.Token = token
+	req.VideoId = videoID
+	req.CommentId = commentid
+	req.CommentText = commenttext
 	res, err := CommentActionService(req)
 	assert.NoError(t, Err)
 	fmt.Println(token)
@@ -39,14 +40,14 @@ func TestContDel(t *testing.T) {
 	var videoID int64 = 1
 	var commentid int64 = 1
 	var commenttext string = "哈哈哈哈"
-	req := new(pb_comment.DouyinCommentActionRequest)
-	req.ActionType = &del
-	token, Err := GenerateToken(2, "4")
+	req := new(pb.DouyinCommentActionRequest)
+	req.ActionType = del
+	token, Err := authenticate.GenToken(2, "4")
 	assert.NoError(t, Err)
-	req.Token = &token
-	req.VideoId = &videoID
-	req.CommentId = &commentid
-	req.CommentText = &commenttext
+	req.Token = token
+	req.VideoId = videoID
+	req.CommentId = commentid
+	req.CommentText = commenttext
 	res, err := CommentActionService(req)
 	assert.NoError(t, Err)
 	fmt.Println(token)

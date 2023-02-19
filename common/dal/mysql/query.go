@@ -12,7 +12,7 @@ import (
 // FindIDinLike 失败时主键返回0和错误信息
 func FindIDinLike(userID, videoID uint64) (int64, error) {
 	var like Like
-	if err := db.Where("owner_id = ? AND video_id = ?", userID, videoID).First(&like).Error; err.Error != nil {
+	if err := db.Where("owner_id = ? AND video_id = ?", userID, videoID).First(&like).Error; err != nil {
 		logs.Error("查询like表主键出错, err: %v", err.Error())
 		return 0, err
 	}
@@ -41,9 +41,9 @@ func FindUserByNameAndPass(username string) (User, error) {
 	return user, nil
 }
 
-func FindUserById(userid uint64) (User, error) {
+func FindUserById(userID uint64) (User, error) {
 	var user User
-	err := db.Where("user_id = ?", userid).First(&user).Error
+	err := db.Where("user_id = ?", userID).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, errors.New("user doesn't exist")
 	}

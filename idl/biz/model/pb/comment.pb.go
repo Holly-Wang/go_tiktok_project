@@ -26,11 +26,11 @@ type DouyinCommentActionRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Token       string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty" form:"token" query:"token"`                                              // 用户鉴权token
-	VideoId     int64  `protobuf:"varint,2,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty" form:"video_id" query:"video_id"`                    // 视频id
-	ActionType  int32  `protobuf:"varint,3,opt,name=action_type,json=actionType,proto3" json:"action_type,omitempty" form:"action_type" query:"action_type"`     // 1-发布评论，2-删除评论
-	CommentText string `protobuf:"bytes,4,opt,name=comment_text,json=commentText,proto3" json:"comment_text,omitempty" form:"comment_text" query:"comment_text"` // 用户填写的评论内容，在action_type=1的时候使用
-	CommentId   int64  `protobuf:"varint,5,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty" form:"comment_id" query:"comment_id"`          // 要删除的评论id，在action_type=2的时候使用
+	Token       string `protobuf:"bytes,1,opt,name=token,proto3" json:"token" form:"token" query:"token"`                                              // 用户鉴权token
+	VideoId     int64  `protobuf:"varint,2,opt,name=video_id,json=videoId,proto3" json:"video_id" form:"video_id" query:"video_id"`                    // 视频id
+	ActionType  int32  `protobuf:"varint,3,opt,name=action_type,json=actionType,proto3" json:"action_type" form:"action_type" query:"action_type"`     // 1-发布评论，2-删除评论
+	CommentText string `protobuf:"bytes,4,opt,name=comment_text,json=commentText,proto3" json:"comment_text" form:"comment_text" query:"comment_text"` // 用户填写的评论内容，在action_type=1的时候使用
+	CommentId   int64  `protobuf:"varint,5,opt,name=comment_id,json=commentId,proto3" json:"comment_id" form:"comment_id" query:"comment_id"`          // 要删除的评论id，在action_type=2的时候使用
 }
 
 func (x *DouyinCommentActionRequest) Reset() {
@@ -105,9 +105,9 @@ type DouyinCommentActionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
-	Comment    *Comment `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty" form:"comment" query:"comment"`                                  // 评论成功返回评论内容，不需要重新拉取整个列表
+	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg" form:"status_msg" query:"status_msg"`       // 返回状态描述
+	Comment    *Comment `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment" form:"comment" query:"comment"`                                  // 评论成功返回评论内容，不需要重新拉取整个列表
 }
 
 func (x *DouyinCommentActionResponse) Reset() {
@@ -168,8 +168,8 @@ type DouyinCommentListRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Token   string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty" query:"token"`                        // 用户鉴权token
-	VideoId int64  `protobuf:"varint,2,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty" query:"video_id"` // 视频id
+	Token   string `protobuf:"bytes,1,opt,name=token,proto3" json:"token" query:"token"`                        // 用户鉴权token
+	VideoId int64  `protobuf:"varint,2,opt,name=video_id,json=videoId,proto3" json:"video_id" query:"video_id"` // 视频id
 }
 
 func (x *DouyinCommentListRequest) Reset() {
@@ -223,9 +223,9 @@ type DouyinCommentListResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode  int32      `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg   string     `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
-	CommentList []*Comment `protobuf:"bytes,3,rep,name=comment_list,json=commentList,proto3" json:"comment_list" form:"comment_list" query:"comment_list"`       // 评论列表
+	StatusCode  int32      `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code" form:"status_code" query:"status_code"`     // 状态码，0-成功，其他值-失败
+	StatusMsg   string     `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg" form:"status_msg" query:"status_msg"`           // 返回状态描述
+	CommentList []*Comment `protobuf:"bytes,3,rep,name=comment_list,json=commentList,proto3" json:"comment_list" form:"comment_list" query:"comment_list"` // 评论列表
 }
 
 func (x *DouyinCommentListResponse) Reset() {

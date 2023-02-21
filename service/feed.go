@@ -19,7 +19,7 @@ type FeedResponse struct {
 	NextTime  int64      `json:"next_time,omitempty"`
 }
 
-func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authenticate.UserInfo) (*pb.DouyinFeedResponse, error) {
+func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authenticate.UserInfo, isLogin bool) (*pb.DouyinFeedResponse, error) {
 	var (
 		resp            = new(pb.DouyinFeedResponse)
 		VideoReturnList = []*pb.Video{}
@@ -27,9 +27,10 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 	)
 	var FailCode int32 = 1
 	var StatusMessage string = "1"
-
-	userId := userInfo.UserID
-
+	var userId int64
+	if isLogin == true {
+		userId = userInfo.UserID
+	}
 	video_sql, err := model.FindVideoList()
 	if err != nil {
 		return &pb.DouyinFeedResponse{
@@ -48,7 +49,7 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 			CoverUrl:      v.CoverUrl,
 			FavoriteCount: v.LikeCount,
 			CommentCount:  v.CommentCount,
-			//Is_favorite:    v.isLike,
+			//IsFavorite:    v.isLike,
 			Title: v.Title,
 		}
 		videos = append(videos, video)
@@ -57,19 +58,25 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 	for i := 0; i < len(videos); i++ {
 		Auther_ID := videos[i].Author.Id
 		Video_ID := videos[i].Id
-		isFollow, err := model.FindFollow(userId, Auther_ID)
-		if err != nil {
-			return &pb.DouyinFeedResponse{
-				StatusCode: FailCode,
-				StatusMsg:  StatusMessage,
-			}, err
-		}
-		isLike, err := model.FindLike(userId, Video_ID)
-		if err != nil {
-			return &pb.DouyinFeedResponse{
-				StatusCode: FailCode,
-				StatusMsg:  StatusMessage,
-			}, err
+		var isFollow bool
+		var isLike bool
+		isFollow = false
+		isLike = false
+		if isLogin == true {
+			isFollow, err = model.FindFollow(userId, Auther_ID)
+			if err != nil {
+				return &pb.DouyinFeedResponse{
+					StatusCode: FailCode,
+					StatusMsg:  StatusMessage,
+				}, err
+			}
+			isLike, err = model.FindLike(userId, Video_ID)
+			if err != nil {
+				return &pb.DouyinFeedResponse{
+					StatusCode: FailCode,
+					StatusMsg:  StatusMessage,
+				}, err
+			}
 		}
 		Auther, err := model.FindUserInfoinUser(Auther_ID)
 		if err != nil {

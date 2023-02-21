@@ -5,10 +5,7 @@ import (
 	"go_tiktok_project/common/authenticate"
 	model "go_tiktok_project/common/dal/mysql"
 	pb "go_tiktok_project/idl/biz/model/pb"
-	"strconv"
 	"time"
-
-	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 )
 
 type Reponse struct {
@@ -30,12 +27,9 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 	)
 	var FailCode int32 = 1
 	var StatusMessage string = "1"
-	var userId int64
-	if isLogin == true {
-		userId = userInfo.UserID
-		id := strconv.FormatInt(userId, 10)
-		logs.Info(id)
-	}
+
+	userId := userInfo.UserID
+
 	video_sql, err := model.FindVideoList()
 	if err != nil {
 		return &pb.DouyinFeedResponse{
@@ -54,7 +48,7 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 			CoverUrl:      v.CoverUrl,
 			FavoriteCount: v.LikeCount,
 			CommentCount:  v.CommentCount,
-			//IsFavorite:    v.isLike,
+			//Is_favorite:    v.isLike,
 			Title: v.Title,
 		}
 		videos = append(videos, video)
@@ -68,14 +62,14 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 		isFollow = false
 		isLike = false
 		if isLogin == true {
-			isFollow, err = model.FindFollow(userId, Auther_ID)
+			isFollow, err := model.FindFollow(userId, Auther_ID)
 			if err != nil {
 				return &pb.DouyinFeedResponse{
 					StatusCode: FailCode,
 					StatusMsg:  StatusMessage,
 				}, err
 			}
-			isLike, err = model.FindLike(userId, Video_ID)
+			isLike, err := model.FindLike(userId, Video_ID)
 			if err != nil {
 				return &pb.DouyinFeedResponse{
 					StatusCode: FailCode,

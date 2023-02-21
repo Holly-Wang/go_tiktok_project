@@ -5,7 +5,6 @@ import (
 	"go_tiktok_project/common/authenticate"
 	model "go_tiktok_project/common/dal/mysql"
 	pb "go_tiktok_project/idl/biz/model/pb"
-	"strconv"
 	"time"
 
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
@@ -33,7 +32,7 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 	var userId int64
 	if isLogin == true {
 		userId = userInfo.UserID
-		id := strconv.FormatInt(userId, 10)
+		id:=strconv.FormatInt(userId)
 		logs.Info(id)
 	}
 	video_sql, err := model.FindVideoList()

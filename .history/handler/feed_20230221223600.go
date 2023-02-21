@@ -6,6 +6,7 @@ import (
 	pb "go_tiktok_project/idl/biz/model/pb"
 	"go_tiktok_project/service"
 	"net/http"
+	"strconv"
 
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"github.com/cloudwego/hertz/pkg/app"
@@ -28,6 +29,7 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 	if token == "" {
 		isLogin = false
 	}
+	isstring := strconv.FormatBool(isLogin)
 	var userInfo *authenticate.UserInfo
 	if isLogin == true {
 		Token = token

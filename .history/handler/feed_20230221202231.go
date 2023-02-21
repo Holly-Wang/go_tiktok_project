@@ -21,23 +21,19 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	var isLogin bool
-	var Token string
-	var token string
-	isLogin = true
-	token = c.Query("token")
-	if token == "" {
-		isLogin = false
+	isLogin = false
+	token, found := c.Get("token")
+	if !found {
+		//没登陆
+		isLogin = true
 	}
-	var userInfo *authenticate.UserInfo
 	if isLogin == true {
-		Token = token
-		info, err := authenticate.CheckToken(Token)
-		//info, err := authenticate.GetAuthUserInfo(c)
+		authenticate.CheckToken(c)
+		userInfo, err := authenticate.GetAuthUserInfo(c)
 		if err != nil {
 			c.String(http.StatusBadRequest, err.Error())
 			return
 		}
-		userInfo = info
 	}
 
 	resp, err := service.GetFeedInfo(ctx, req, userInfo, isLogin)

@@ -20,27 +20,14 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	var isLogin bool
-	var Token string
-	var token string
-	isLogin = true
-	token = c.Query("token")
-	if token == "" {
-		isLogin = false
-	}
-	var userInfo *authenticate.UserInfo
-	if isLogin == true {
-		Token = token
-		info, err := authenticate.CheckToken(Token)
-		//info, err := authenticate.GetAuthUserInfo(c)
-		if err != nil {
-			c.String(http.StatusBadRequest, err.Error())
-			return
-		}
-		userInfo = info
+
+	userInfo, err := authenticate.GetAuthUserInfo(c)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
 	}
 
-	resp, err := service.GetFeedInfo(ctx, req, userInfo, isLogin)
+	resp, err := service.GetFeedInfo(ctx, req, userInfo)
 	if err != nil {
 		logs.Errorf("service err: %v", err)
 		c.String(http.StatusBadRequest, err.Error())

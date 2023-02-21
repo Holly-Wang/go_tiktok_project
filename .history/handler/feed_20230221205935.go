@@ -22,17 +22,17 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 	}
 	var isLogin bool
 	var Token string
-	var token string
-	isLogin = true
-	token = c.Query("token")
-	if token == "" {
+	isLogin = false
+	token, found := c.Get("token")
+	if !found {
 		isLogin = false
 	}
+	logs.Info(isLogin)
 	var userInfo *authenticate.UserInfo
 	if isLogin == true {
-		Token = token
-		info, err := authenticate.CheckToken(Token)
-		//info, err := authenticate.GetAuthUserInfo(c)
+		Token = token.(string)
+		authenticate.CheckToken(Token)
+		info, err := authenticate.GetAuthUserInfo(c)
 		if err != nil {
 			c.String(http.StatusBadRequest, err.Error())
 			return

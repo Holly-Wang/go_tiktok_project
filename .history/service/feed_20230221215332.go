@@ -1,14 +1,15 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"go_tiktok_project/common/authenticate"
 	model "go_tiktok_project/common/dal/mysql"
 	pb "go_tiktok_project/idl/biz/model/pb"
-	"strconv"
 	"time"
 
-	"github.com/cloudwego/hertz/cmd/hz/util/logs"
+	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/protobuf/proto"
 )
 
 type Reponse struct {
@@ -22,6 +23,18 @@ type FeedResponse struct {
 	NextTime  int64      `json:"next_time,omitempty"`
 }
 
+func TransProtoToJson(pb proto.Message) string {
+	var pbMarshaler jsonpb.Marshaler
+	pbMarshaler = jsonpb.Marshaler{
+		EmitDefaults: true,
+		OrigName:     true,
+		EnumsAsInts:  true,
+	}
+	_buffer := new(bytes.Buffer)
+	_ = pbMarshaler.Marshal(_buffer, pb)
+	return string(_buffer.Bytes())
+}
+
 func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authenticate.UserInfo, isLogin bool) (*pb.DouyinFeedResponse, error) {
 	var (
 		resp            = new(pb.DouyinFeedResponse)
@@ -33,8 +46,6 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 	var userId int64
 	if isLogin == true {
 		userId = userInfo.UserID
-		id := strconv.FormatInt(userId, 10)
-		logs.Info(id)
 	}
 	video_sql, err := model.FindVideoList()
 	if err != nil {
@@ -97,6 +108,7 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 			FollowerCount: Auther.Follower_cnt,
 			IsFollow:      isFollow,
 		}
+		UserReturn = TransProtoToJson(UserReturn)
 		VideoResponse := pb.Video{
 			Id:            videos[i].Id,
 			Author:        &UserReturn,
@@ -107,6 +119,7 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 			Title:         videos[i].Title,
 			IsFavorite:    isLike,
 		}
+		VideoResponse = TransProtoToJson(VideoResponse)
 		VideoReturnList = append(VideoReturnList, &VideoResponse)
 	}
 	resp.VideoList = VideoReturnList

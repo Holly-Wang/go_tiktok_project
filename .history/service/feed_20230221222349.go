@@ -33,7 +33,7 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 	var userId int64
 	if isLogin == true {
 		userId = userInfo.UserID
-		id := strconv.FormatInt(userId, 10)
+		id := strconv.FormatInt(userId)
 		logs.Info(id)
 	}
 	video_sql, err := model.FindVideoList()

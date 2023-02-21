@@ -26,8 +26,8 @@ type DouyinPublishListRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId int64  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" query:"user_id"` // 用户id
-	Token  string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty" query:"token"`                    // 用户鉴权token
+	UserId int64  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id" query:"user_id"` // 用户id
+	Token  string `protobuf:"bytes,2,opt,name=token,proto3" json:"token" query:"token"`                    // 用户鉴权token
 }
 
 func (x *DouyinPublishListRequest) Reset() {
@@ -81,9 +81,9 @@ type DouyinPublishListResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
-	VideoList  []*Video `protobuf:"bytes,3,rep,name=video_list,json=videoList,proto3" json:"video_list" form:"video_list" query:"video_list"`                 // 用户发布的视频列表
+	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg" form:"status_msg" query:"status_msg"`       // 返回状态描述
+	VideoList  []*Video `protobuf:"bytes,3,rep,name=video_list,json=videoList,proto3" json:"video_list" form:"video_list" query:"video_list"`       // 用户发布的视频列表
 }
 
 func (x *DouyinPublishListResponse) Reset() {
@@ -144,9 +144,9 @@ type DouyinPublishActionRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty" form:"token" query:"token"` // 用户鉴权token
-	Data  []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty" form:"data" query:"data"`     // 视频数据
-	Title string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty" form:"title" query:"title"` // 视频标题
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token" form:"token" query:"token"` // 用户鉴权token
+	Data  []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data" form:"data" query:"data"`     // 视频数据
+	Title string `protobuf:"bytes,3,opt,name=title,proto3" json:"title" form:"title" query:"title"` // 视频标题
 }
 
 func (x *DouyinPublishActionRequest) Reset() {
@@ -207,8 +207,8 @@ type DouyinPublishActionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
+	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg" form:"status_msg" query:"status_msg"`       // 返回状态描述
 }
 
 func (x *DouyinPublishActionResponse) Reset() {

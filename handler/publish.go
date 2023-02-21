@@ -61,31 +61,13 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: %s", string(path))
 
-	//req := new(pb.DouyinPublishActionRequest)
-	//if err := c.BindAndValidate(&req); err != nil {
-	//	c.String(http.StatusBadRequest, err.Error())
-	//	return
-	//}
-
-	token, _ := c.GetPostForm("token")
-	title, _ := c.GetPostForm("title")
-
-	//userInfo, err := authenticate.GetAuthUserInfo(c)
-	//if err != nil {
-	//	c.String(http.StatusBadRequest, err.Error())
-	//	return
-	//}
-
-	userInfo, err := authenticate.CheckToken(token)
+	userInfo, err := authenticate.GetAuthUserInfo(c)
 	if err != nil {
-		logs.Errorf("鉴权token错误, error: " + err.Error())
-		c.JSON(http.StatusBadRequest, utils.H{
-			"status_code": common.TokenFailed,
-			"status_msg":  common.TokenFailedMsg,
-		})
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
+	title, _ := c.GetPostForm("title")
 	data, err := c.FormFile("data")
 	if err != nil {
 		panic(err)
@@ -96,7 +78,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	fileInfo := strings.Split(filename, ".")
 	filedir := fileInfo[0]
 	filedata := fmt.Sprintf("uesr:%d  video:%s", userInfo.UserID, filename)
-	filedir = fmt.Sprintf("./video_data/%s/%s", token, filedir)
+	filedir = fmt.Sprintf("./video_data/%s/%s", userInfo.Username, filedir) //token是没解析的
 	logs.Info("file: %s", data.Filename)
 	logs.Info("filedir: %s", filedir)
 

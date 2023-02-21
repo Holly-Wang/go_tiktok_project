@@ -3,9 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+	"go_tiktok_project/common/authenticate"
 	"go_tiktok_project/common/dal/mysql"
-	"go_tiktok_project/common/dal/rediss"
-	"go_tiktok_project/idl/pb"
+	"go_tiktok_project/idl/biz/model/pb"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,25 +21,26 @@ func comparePwd(pwd1 string, pwd2 string) bool {
 }
 
 func UserLogin(ctx context.Context, req *pb.DouyinUserLoginRequest) (*pb.DouyinUserLoginResponse, error) {
-	user, err := mysql.FindUserByNameAndPass(*req.Username)
+	user, err := mysql.FindUserByNameAndPass(req.Username)
 	if err != nil {
 		return nil, err
 	}
 
-	if !comparePwd(user.Password, *req.Password) {
+	if !comparePwd(user.Password, req.Password) {
 		return nil, errors.New("wrong password")
 	}
 
-	token, err := rediss.GetTokenByName(ctx, *req.Username)
-	if err != nil {
-		return nil, err
-	}
+	// TODO(liuyiyang): 暂时无 redis 环境
+	// token, err := rediss.GetTokenByName(ctx, req.Username)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	token, err := authenticate.GenToken(user.UserID, user.Username)
 
 	resp := &pb.DouyinUserLoginResponse{
-		StatusCode: new(int32),
-		StatusMsg:  new(string),
-		UserId:     &user.UserID,
-		Token:      &token,
+		UserId: user.UserID,
+		Token:  token,
 	}
 	return resp, nil
 }

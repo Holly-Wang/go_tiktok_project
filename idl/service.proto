@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package douyin.core;
+
+option go_package = "pb/";
+
+import "api.proto";
+import "user.proto";
+import "video.proto";
+import "favorite.proto";
+import "feed.proto";
+import "comment.proto";
+import "common.proto";
+
+service Douyin {
+}

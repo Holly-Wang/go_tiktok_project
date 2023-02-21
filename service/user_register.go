@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"go_tiktok_project/common"
 	"go_tiktok_project/common/authenticate"
 	"go_tiktok_project/common/dal/mysql"
 	"go_tiktok_project/common/dal/rediss"
@@ -52,8 +53,10 @@ func UserRegister(ctx context.Context, req *pb.DouyinUserRegisterRequest) (*pb.D
 	}
 
 	resp := &pb.DouyinUserRegisterResponse{
-		UserId: userID,
-		Token:  token,
+		StatusMsg:  common.RegisterSueecssMsg,
+		UserId:     userID,
+		Token:      token,
+		StatusCode: common.RegisterSucces,
 	}
 	return resp, nil
 }

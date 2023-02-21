@@ -61,15 +61,28 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: %s", string(path))
 
-	req := new(pb.DouyinPublishActionRequest)
-	if err := c.BindAndValidate(&req); err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
+	//req := new(pb.DouyinPublishActionRequest)
+	//if err := c.BindAndValidate(&req); err != nil {
+	//	c.String(http.StatusBadRequest, err.Error())
+	//	return
+	//}
 
-	userInfo, err := authenticate.GetAuthUserInfo(c)
+	token, _ := c.GetPostForm("token")
+	title, _ := c.GetPostForm("title")
+
+	//userInfo, err := authenticate.GetAuthUserInfo(c)
+	//if err != nil {
+	//	c.String(http.StatusBadRequest, err.Error())
+	//	return
+	//}
+
+	userInfo, err := authenticate.CheckToken(token)
 	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
+		logs.Errorf("鉴权token错误, error: " + err.Error())
+		c.JSON(http.StatusBadRequest, utils.H{
+			"status_code": common.TokenFailed,
+			"status_msg":  common.TokenFailedMsg,
+		})
 		return
 	}
 
@@ -83,7 +96,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	fileInfo := strings.Split(filename, ".")
 	filedir := fileInfo[0]
 	filedata := fmt.Sprintf("uesr:%d  video:%s", userInfo.UserID, filename)
-	filedir = fmt.Sprintf("./video_data/%s/%s", req.Token, filedir)
+	filedir = fmt.Sprintf("./video_data/%s/%s", token, filedir)
 	logs.Info("file: %s", data.Filename)
 	logs.Info("filedir: %s", filedir)
 
@@ -122,7 +135,7 @@ func PostUserVideo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//service 保存视频数据到数据库
-	err = service.PostUserVideo(userInfo.UserID, req.Title, saveFile, filedata)
+	err = service.PostUserVideo(userInfo.UserID, title, saveFile, filedata)
 	if err != nil {
 		logs.Error("server error, err: %v", err)
 		c.JSON(http.StatusBadRequest, utils.H{

@@ -69,6 +69,17 @@ func FindComment(videoID int64) ([]Comment, error) {
 	return commentss, nil
 }
 
+// 根据 video_id 得到 userid(auther_id)
+func FindVidByUid(video_id int64) int64 {
+	var user User
+	res := db.Select("auther_id").Where("video_id = ? ", video_id).Find(&user)
+	if res.Error != nil {
+		logs.Error("查询comment表主键出错, err: ", res.Error)
+		return -1
+	}
+	return user.UserID
+}
+
 // FindLikeList 查询登录用户喜欢的视频列表
 func FindLikeList(userID int64) ([]Video, error) {
 	var likes []Like

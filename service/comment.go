@@ -43,20 +43,24 @@ func CommentActionService(req *pb.DouyinCommentActionRequest) (*pb.DouyinComment
 				StatusMsg:  WA,
 			}, err
 		}
+		userrID := model.FindVidByUid(*videoid)
+		is_follow, err := model.CheckFollow(int64(userID), userrID)
+		if err != nil {
+			logs.Errorf("[SQL Error] check follow err: %v", err)
+			return nil, err
+		}
 		userName := user.Username
 		follow_count := user.Follow_cnt
 		follower_count := user.Follower_cnt
 		userID_int64 := int64(userID)
-		// todo 加一个 is_follow【合并后进行】
+		comment_user.Id = &userID_int64
+		comment_user.Name = &userName
+		comment_user.FollowCount = &follow_count
+		comment_user.FollowerCount = &follower_count
+		comment_user.IsFollow = &is_follow
 
-		comment_user.Id = userID_int64
-		comment_user.Name = userName
-		comment_user.FollowCount = follow_count
-		comment_user.FollowerCount = follower_count
-
-		comment.Id = req.CommentId
-		comment.Content = req.CommentText
-
+		comment.Id = commentid
+		comment.Content = commenttext
 		comment.User = &comment_user
 
 		// 创建时默认自己没有点赞且点赞数为0
@@ -67,8 +71,9 @@ func CommentActionService(req *pb.DouyinCommentActionRequest) (*pb.DouyinComment
 			StatusMsg:  AC,
 			Comment:    &comment,
 		}, err
-	case del:
-		userID, err := common.Token2UserID(req.Token)
+	}
+	if *actiontype == del {
+		userID, err := common.Token2UserID(*token)
 		if err != nil {
 			return &pb.DouyinCommentActionResponse{
 				StatusCode: FailCode,
@@ -82,17 +87,24 @@ func CommentActionService(req *pb.DouyinCommentActionRequest) (*pb.DouyinComment
 				StatusMsg:  WA,
 			}, err
 		}
+		userrID := model.FindVidByUid(*videoid)
+		is_follow, err := model.CheckFollow(int64(userID), userrID)
+		if err != nil {
+			logs.Errorf("[SQL Error] check follow err: %v", err)
+			return nil, err
+		}
 		userName := user.Username
 		follow_count := user.Follow_cnt
 		follower_count := user.Follower_cnt
 		userID_int64 := int64(userID)
-		// todo 加一个 is_follow【合并后进行】
 
-		comment_user.Id = userID_int64
-		comment_user.Name = userName
-		comment_user.FollowCount = follow_count
-		comment_user.FollowerCount = follower_count
-		comment.Id = req.CommentId
+		comment_user.Id = &userID_int64
+		comment_user.Name = &userName
+		comment_user.FollowCount = &follow_count
+		comment_user.FollowerCount = &follower_count
+		comment_user.IsFollow = &is_follow
+
+		comment.Id = commentid
 		comment.User = &comment_user
 
 		model.DelComment(req.CommentId)

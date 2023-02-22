@@ -30,19 +30,15 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 		isLogin = false
 	}
 	var userInfo *authenticate.UserInfo
-	//var info2
 	if isLogin == true {
 		Token = token
 		info, err := authenticate.CheckToken(Token)
-		//info2 = info
 		//解析token获得用户信息
 		if err != nil {
-			//c.String(http.StatusBadRequest, err.Error())
-			isLogin = false
+			c.String(http.StatusBadRequest, err.Error())
+			return
 		}
-		if err == nil {
-			userInfo = info
-		}
+		userInfo = info
 	}
 
 	resp, err := service.GetFeedInfo(ctx, req, userInfo, isLogin)

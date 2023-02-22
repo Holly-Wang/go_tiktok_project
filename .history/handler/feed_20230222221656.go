@@ -37,7 +37,7 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 		//info2 = info
 		//解析token获得用户信息
 		if err != nil {
-			//c.String(http.StatusBadRequest, err.Error())
+			c.String(http.StatusBadRequest, err.Error())
 			isLogin = false
 		}
 		if err == nil {

@@ -6,7 +6,6 @@ import (
 	"go_tiktok_project/common"
 	"go_tiktok_project/common/authenticate"
 	"go_tiktok_project/common/dal/mysql"
-	"go_tiktok_project/common/dal/rediss"
 	"go_tiktok_project/idl/biz/model/pb"
 	"regexp"
 
@@ -48,9 +47,9 @@ func UserRegister(ctx context.Context, req *pb.DouyinUserRegisterRequest) (*pb.D
 		return nil, err
 	}
 
-	if err := rediss.SetToken(ctx, req.Username, token); err != nil {
-		return nil, err
-	}
+	//if err := rediss.SetToken(ctx, req.Username, token); err != nil {
+	//	return nil, err
+	//}
 
 	resp := &pb.DouyinUserRegisterResponse{
 		StatusMsg:  common.RegisterSueecssMsg,

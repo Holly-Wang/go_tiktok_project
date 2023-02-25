@@ -1,0 +1,18 @@
+syntax = "proto3";
+package douyin.core;
+
+option go_package = "pb/";
+import "common.proto";
+import "api.proto";
+
+message douyin_feed_request {
+  int64 latest_time = 1  [(api.query) = "latest_time"]; // 可选参数，限制返回视频的最新投稿时间戳，精确到秒，不填表示当前时间
+  string token = 2  [(api.query) = "token"]; // 可选参数，登录用户设置
+}
+
+message douyin_feed_response {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  repeated Video video_list = 3; // 视频列表
+  int64 next_time = 4; // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
+}

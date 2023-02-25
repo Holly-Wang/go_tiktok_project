@@ -1,0 +1,28 @@
+syntax = "proto3";
+package douyin.core;
+
+option go_package = "pb/";
+import "common.proto";
+import "api.proto";
+
+message douyin_publish_list_request {
+  int64 user_id = 1 [(api.query) = "user_id"]; // 用户id
+  string token = 2 [(api.query) = "token"]; // 用户鉴权token
+}
+
+message douyin_publish_list_response {
+ int32 status_code = 1; // 状态码，0-成功，其他值-失败
+ string status_msg = 2; // 返回状态描述
+ repeated Video video_list = 3; // 用户发布的视频列表
+}
+
+message douyin_publish_action_request {
+ string token = 1; // 用户鉴权token
+ bytes data = 2; // 视频数据
+ string title = 3; // 视频标题
+}
+
+message douyin_publish_action_response {
+ int32 status_code = 1; // 状态码，0-成功，其他值-失败
+ string status_msg = 2; // 返回状态描述
+}

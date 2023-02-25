@@ -1,15 +1,16 @@
 package service
 
 import (
+	"go_tiktok_project/common/dal/mysql"
 	"testing"
+
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"github.com/stretchr/testify/assert"
-	"go_tiktok_project/common/dal/mysql"
 )
 
 func TestGetUserVideo(t *testing.T) {
-    mysql.InitDB()
-	list, err := GetUserVideo(123,111)
+	mysql.InitDB()
+	list, err := GetUserVideo(123, 111)
 	assert.NoError(t, err)
 	logs.Info("list: ", list)
 }

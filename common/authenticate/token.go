@@ -15,7 +15,6 @@ const (
 type CustomClaims struct {
 	UserID   int64
 	UserName string
-	PassWord string
 	jwt.StandardClaims
 }
 
@@ -25,12 +24,12 @@ func GenToken(userID int64, userName string) (string, error) {
 		UserID:   userID,
 		UserName: userName,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Duration(maxAge) * time.Second).Unix(), // 过期时间，必须设置
+			ExpiresAt: time.Now().Add(time.Duration(maxAge) * time.Second).Unix(),//设置过期时间
 			Issuer:    userName,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(SECRETKEY))
+	tokenString, err := token.SignedString([]byte(SECRETKEY))//得到token字符串
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -44,6 +43,7 @@ func CheckToken(tokenString string) (*UserInfo, error) {
 		}
 		return []byte(SECRETKEY), nil
 	})
+	//解析token
 	if err != nil {
 		logs.Error("token err: %v", err)
 		return nil, err

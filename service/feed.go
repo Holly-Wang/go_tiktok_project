@@ -58,19 +58,20 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 	for i := 0; i < len(videos); i++ {
 		Auther_ID := videos[i].Author.Id
 		Video_ID := videos[i].Id
-		var isFollow bool
-		var isLike bool
+		//获取作者id和视频id
+		var isFollow bool//表示用户(若登录)是否关注当前视频作者
+		var isLike bool//表示用户(若登录)是否喜欢当前视频
 		isFollow = false
 		isLike = false
-		if isLogin == true {
-			isFollow, err = model.FindFollow(userId, Auther_ID)
+		if isLogin == true {//只在用户登录的情况下查询关注(作者)和喜欢(视频)信息
+			isFollow, err = model.FindFollow(userId, Auther_ID)//查询关注信息
 			if err != nil {
 				return &pb.DouyinFeedResponse{
 					StatusCode: FailCode,
 					StatusMsg:  StatusMessage,
 				}, err
 			}
-			isLike, err = model.FindLike(userId, Video_ID)
+			isLike, err = model.FindLike(userId, Video_ID)//查询喜欢信息
 			if err != nil {
 				return &pb.DouyinFeedResponse{
 					StatusCode: FailCode,
@@ -78,21 +79,21 @@ func GetFeedInfo(ctx context.Context, req *pb.DouyinFeedRequest, userInfo *authe
 				}, err
 			}
 		}
-		Auther, err := model.FindUserInfoinUser(Auther_ID)
+		Auther, err := model.FindUserInfoinUser(Auther_ID)//查询作者信息
 		if err != nil {
 			return &pb.DouyinFeedResponse{
 				StatusCode: FailCode,
 				StatusMsg:  StatusMessage,
 			}, err
 		}
-		var UserReturn pb.User = pb.User{
+		var UserReturn pb.User = pb.User{//构造作者信息
 			Id:            videos[i].Author.Id,
 			Name:          Auther.Username,
 			FollowCount:   Auther.Follow_cnt,
 			FollowerCount: Auther.Follower_cnt,
 			IsFollow:      isFollow,
 		}
-		VideoResponse := pb.Video{
+		VideoResponse := pb.Video{//构造视频信息
 			Id:            videos[i].Id,
 			Author:        &UserReturn,
 			PlayUrl:       videos[i].PlayUrl,

@@ -26,18 +26,23 @@ func GetFeedInfo(ctx context.Context, c *app.RequestContext) {
 	isLogin = true
 	token = c.Query("token")
 	if token == "" {
+		//通过token是否为空判断用户是否登录
 		isLogin = false
 	}
 	var userInfo *authenticate.UserInfo
+	//var info2
 	if isLogin == true {
 		Token = token
 		info, err := authenticate.CheckToken(Token)
-		//info, err := authenticate.GetAuthUserInfo(c)
+		//info2 = info
+		//解析token获得用户信息
 		if err != nil {
-			c.String(http.StatusBadRequest, err.Error())
-			return
+			//c.String(http.StatusBadRequest, err.Error())
+			isLogin = false
 		}
-		userInfo = info
+		if err == nil {
+			userInfo = info
+		}
 	}
 
 	resp, err := service.GetFeedInfo(ctx, req, userInfo, isLogin)

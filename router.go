@@ -14,13 +14,15 @@ func register(r *server.Hertz) {
 	r.GET("/douyin/feed/", handler.GetFeedInfo)
 
 	r.GET("/douyin/favorite/list/", middlewares.AuthN(), handler.GetFavList)
-	r.POST("/douyin/favorite/action/", middlewares.AuthN(), handler.Favorite)
+	//r.POST("/douyin/favorite/action/", middlewares.AuthN(), handler.Favorite)
+	r.POST("/douyin/favorite/action/", handler.Favorite)
 
 	r.POST("/douyin/user/register/", handler.UserRegister)
 	r.POST("/douyin/user/login/", handler.UserLogin)
 	r.GET("/douyin/user/", middlewares.AuthN(), handler.GetUserInfo)
 
-	r.POST("/douyin/comment/action/", middlewares.AuthN(), handler.CommentAction)
+	//r.POST("/douyin/comment/action/", middlewares.AuthN(), handler.CommentAction)
+	r.POST("/douyin/comment/action/", handler.CommentAction)
 	r.GET("/douyin/comment/list/", middlewares.AuthN(), handler.CommentList)
 
 	r.GET("/douyin/publish/list/", middlewares.AuthN(), handler.GetUserVideo)

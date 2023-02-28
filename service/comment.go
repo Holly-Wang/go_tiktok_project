@@ -1,12 +1,11 @@
 package service
 
 import (
-	common "go_tiktok_project/common"
-	model "go_tiktok_project/common/dal/mysql"
-	"go_tiktok_project/idl/biz/model/pb"
-	"strconv"
-
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
+	"go_tiktok_project/common/authenticate"
+	model "go_tiktok_project/common/dal/mysql"
+	"go_tiktok_project/common/middlewares"
+	"go_tiktok_project/idl/biz/model/pb"
 )
 
 const (
@@ -26,10 +25,15 @@ func CommentActionService(req *pb.DouyinCommentActionRequest) (*pb.DouyinComment
 		comment      pb.Comment
 		comment_user pb.User
 	)
+	userInfo, err := authenticate.CheckToken(req.Token)
+	if err != nil {
+		// 没有调用过auth
+		middlewares.AuthN()
+	}
+	userID := userInfo.UserID
 	switch req.ActionType {
 	case cre:
-		userID, err := common.Token2UserID(req.Token)
-		logs.Info(strconv.FormatUint(userID, 10))
+		logs.Info("%d", userID)
 		if err != nil {
 			return &pb.DouyinCommentActionResponse{
 				StatusCode: FailCode,
@@ -44,7 +48,7 @@ func CommentActionService(req *pb.DouyinCommentActionRequest) (*pb.DouyinComment
 			}, err
 		}
 		userrID := model.FindVidByUid(req.VideoId)
-		is_follow, err := model.CheckFollow(int64(userID), userrID)
+		is_follow, err := model.CheckFollow(userID, userrID)
 		if err != nil {
 			logs.Errorf("[SQL Error] check follow err: %v", err)
 			return nil, err
@@ -74,13 +78,6 @@ func CommentActionService(req *pb.DouyinCommentActionRequest) (*pb.DouyinComment
 		}, err
 	}
 	if req.ActionType == del {
-		userID, err := common.Token2UserID(req.Token)
-		if err != nil {
-			return &pb.DouyinCommentActionResponse{
-				StatusCode: FailCode,
-				StatusMsg:  WA,
-			}, err
-		}
 		user, err := model.FindUserById(userID)
 		if err != nil {
 			return &pb.DouyinCommentActionResponse{

@@ -1,8 +1,9 @@
 package service
 
 import (
-	"go_tiktok_project/common"
+	"go_tiktok_project/common/authenticate"
 	"go_tiktok_project/common/dal/mysql"
+	"go_tiktok_project/common/middlewares"
 	"go_tiktok_project/idl/biz/model/pb"
 	"time"
 
@@ -70,16 +71,17 @@ func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActi
 	var WA string = "failes"
 	var FailCode int32 = 1
 	resp := new(pb.DouyinFavoriteActionResponse)
+
+	userInfo, err := authenticate.CheckToken(req.Token)
+	if err != nil {
+		// 没有调用过auth
+		middlewares.AuthN()
+	}
+
+	userID := userInfo.UserID
 	switch req.ActionType {
 	case accpet:
-		userID, err := common.Token2UserID(req.Token)
-		if err != nil {
-			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: FailCode,
-				StatusMsg:  WA,
-			}, err
-		}
-		err = LikeTX(db, int64(userID), req.VideoId)
+		err := LikeTX(db, int64(userID), req.VideoId)
 		if err != nil {
 			logs.Error("err: %v", err)
 			return &pb.DouyinFavoriteActionResponse{
@@ -88,13 +90,6 @@ func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActi
 			}, err
 		}
 	case refuse:
-		userID, err := common.Token2UserID(req.Token)
-		if err != nil {
-			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: FailCode,
-				StatusMsg:  WA,
-			}, err
-		}
 		// 先查询视频点赞数，等于0就不用减了
 		likeCount, likeErr := mysql.FindLikeOfVideo(req.VideoId)
 		if likeErr != nil {
@@ -108,7 +103,7 @@ func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActi
 			return &pb.DouyinFavoriteActionResponse{}, nil
 		}
 		// 点赞数大于0，减一下
-		err = DelTX(db, int64(userID), req.VideoId)
+		err := DelTX(db, int64(userID), req.VideoId)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
 				StatusCode: FailCode,

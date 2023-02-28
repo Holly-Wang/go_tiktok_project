@@ -41,7 +41,7 @@ func FindUserByNameAndPass(username string) (User, error) {
 	return user, nil
 }
 
-func FindUserById(userID uint64) (User, error) {
+func FindUserById(userID int64) (User, error) {
 	var user User
 	err := db.Where("user_id = ?", userID).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {

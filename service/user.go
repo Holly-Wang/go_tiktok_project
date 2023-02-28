@@ -10,7 +10,7 @@ import (
 )
 
 func GetUserInfo(ctx context.Context, req *pb.DouyinUserRequest, userInfo *authenticate.UserInfo) (*pb.DouyinUserResponse, error) {
-	userRecord, err := mysql.FindUserById(uint64(userInfo.UserID))
+	userRecord, err := mysql.FindUserById(userInfo.UserID)
 	if err != nil {
 		logs.Errorf("[SQL Error] get user record err: %v", err)
 		return nil, err

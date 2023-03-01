@@ -4,42 +4,19 @@ import (
 	"bytes"
 	"fmt"
 	"go_tiktok_project/common/dal/mysql"
+	"go_tiktok_project/idl/biz/model/pb"
 	"os"
 	"strings"
+
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"github.com/disintegration/imaging"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
-// 生成pb会显示有冲突，就在这里构造了结构体
-type User struct {
-	Id            int64  `protobuf:"varint,1,req,name=id" json:"id"`                                            // 用户id
-	Name          string `protobuf:"bytes,2,req,name=name" json:"name"`                                         // 用户名称
-	FollowCount   int64  `protobuf:"varint,3,opt,name=follow_count,json=followCount" json:"follow_count"`       // 关注总数
-	FollowerCount int64  `protobuf:"varint,4,opt,name=follower_count,json=followerCount" json:"follower_count"` // 粉丝总数
-	IsFollow      bool   `protobuf:"varint,5,req,name=is_follow,json=isFollow" json:"is_follow"`                // true-已关注，false-未关注
-}
-
-type Video struct {
-	Id             int64  `protobuf:"varint,1,req,name=id" json:"id"`                                             // 视频唯一标识
-	Author         User   `protobuf:"varint,2,req,name=author" json:"author"`                                     // 视频作者信息
-	Play_url       string `protobuf:"bytes,3,req,name=play_url" json:"play_url"`                                  // 视频播放地址
-	Cover_url      string `protobuf:"bytes,4,req,name=cover_url_count,json=cover_url" json:"cover_url"`           // 视频封面地址
-	Favorite_count int64  `protobuf:"varint,5,req,name=favorite_count,json=favorite_count" json:"favorite_count"` // 视频的点赞总数
-	Comment_count  int64  `protobuf:"varint,6,req,name=comment_count,json=comment_count" json:"comment_count"`    // 视频的评论总数
-	Is_favorite    bool   `protobuf:"varint,7,req,name=is_favorite ,json=is_favorite" json:"is_favorite "`        // true-已点赞，false-未点赞
-	Title          string `protobuf:"bytes,8,req,name=title,json=title" json:"title"`                             // 视频标题
-	Abstract       string `protobuf:"bytes,8,req,name=absruct,json=abstract" json:"abstract"`                     // 视频简介
-}
-
-
 // 查询数据库获得用户发布列表
-func GetUserVideo(video_user_id, token_user_id int64) ([]Video, error) {
-
-	mysql.InitDB()
-
+func GetUserVideo(videoUserID, tokenUserID int64) ([]*pb.Video, error) {
 	//查询用户信息
-	userInfo, err := mysql.FindUserInfoinUser(video_user_id)
+	userInfo, err := mysql.FindUserInfoinUser(videoUserID)
 	if err != nil {
 		logs.Errorf("查询User表出错, error: " + err.Error())
 		return nil, err
@@ -47,7 +24,7 @@ func GetUserVideo(video_user_id, token_user_id int64) ([]Video, error) {
 
 	//查询token_user是否关注user
 	var isFollow bool = false
-	FollowCount, err := mysql.FindCountinFollows(token_user_id, video_user_id)
+	FollowCount, err := mysql.FindCountinFollows(tokenUserID, videoUserID)
 	if err != nil {
 		logs.Errorf("查询Follow表出错, error: " + err.Error())
 		return nil, err
@@ -55,7 +32,7 @@ func GetUserVideo(video_user_id, token_user_id int64) ([]Video, error) {
 	if FollowCount > 0 {
 		isFollow = true
 	}
-	user := &User{
+	user := &pb.User{
 		Id:            userInfo.UserID,
 		Name:          userInfo.Username,
 		FollowCount:   userInfo.Follow_cnt,
@@ -64,17 +41,17 @@ func GetUserVideo(video_user_id, token_user_id int64) ([]Video, error) {
 	}
 
 	//查询用户发布视频列表
-	videos, err := mysql.FindVideoListinVideo(video_user_id)
+	videos, err := mysql.FindVideoListinVideo(videoUserID)
 	if err != nil {
 		logs.Errorf("查询Video表出错, error: " + err.Error())
 		return nil, err
 	}
 
-	var video_list []Video
+	var videoList []*pb.Video
 	for _, v := range videos {
 		//查询token_user是否喜欢视频
 		var isLike bool = false
-		LikesCount, err := mysql.FindCountinLikes(token_user_id, v.VideoID)
+		LikesCount, err := mysql.FindCountinLikes(tokenUserID, v.VideoID)
 		if err != nil {
 			logs.Errorf("查询Like表Count出错, error: " + err.Error())
 			return nil, err
@@ -83,21 +60,20 @@ func GetUserVideo(video_user_id, token_user_id int64) ([]Video, error) {
 			isLike = true
 		}
 
-		video := &Video{
-			Id:             v.VideoID,
-			Author:         *user,
-			Play_url:       v.PlayUrl,
-			Cover_url:      v.CoverUrl,
-			Favorite_count: v.LikeCount,
-			Comment_count:  v.CommentCount,
-			Is_favorite:    isLike,
-			Title:          v.Title,
-			Abstract:       v.Abstract,
+		video := &pb.Video{
+			Id:            v.VideoID,
+			Author:        user,
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.LikeCount,
+			CommentCount:  v.CommentCount,
+			IsFavorite:    isLike,
+			Title:         v.Title,
 		}
-		video_list = append(video_list, *video)
+		videoList = append(videoList, video)
 	}
-	
-	return video_list, nil
+
+	return videoList, nil
 }
 
 // 视频截图，保存视频数据到数据库

@@ -1,12 +1,12 @@
 package service
 
 import (
-	"fmt"
 	"go_tiktok_project/common"
 	"go_tiktok_project/common/dal/mysql"
-	"go_tiktok_project/idl/pb"
+	"go_tiktok_project/idl/biz/model/pb"
 	"time"
 
+	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"gorm.io/gorm"
 )
 
@@ -60,73 +60,61 @@ func DelTX(db *gorm.DB, userID int64, videoID int64) error {
 	return tx.Commit().Error
 }
 
+const (
+	accpet int32 = 1
+	refuse int32 = 2
+)
+
 func FavoriteAction(req *pb.DouyinFavoriteActionRequest) (*pb.DouyinFavoriteActionResponse, error) {
-	mysql.InitDB()
 	db := mysql.NewDB()
-	token := req.Token
-	videoID := req.VideoId
-	actionType := req.ActionType
-	var accpet int32 = 1
-	var refuse int32 = 2
-	var AC string = "success"
 	var WA string = "failes"
-	var SuccessCode int32 = 0
 	var FailCode int32 = 1
-	var (
-		rep = new(pb.DouyinFavoriteActionResponse)
-	)
-	fmt.Println("type:", *actionType)
-	if *actionType == accpet {
-		userID, err := common.Token2UserID(*token)
+	resp := new(pb.DouyinFavoriteActionResponse)
+	switch req.ActionType {
+	case accpet:
+		userID, err := common.Token2UserID(req.Token)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: &FailCode,
-				StatusMsg:  &WA,
+				StatusCode: FailCode,
+				StatusMsg:  WA,
 			}, err
 		}
-		err = LikeTX(db, int64(userID), *videoID)
+		err = LikeTX(db, int64(userID), req.VideoId)
 		if err != nil {
-			fmt.Println("error: " + err.Error())
+			logs.Error("err: %v", err)
 			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: &FailCode,
-				StatusMsg:  &WA,
+				StatusCode: FailCode,
+				StatusMsg:  WA,
 			}, err
 		}
-		rep.StatusCode = &SuccessCode
-		rep.StatusMsg = &AC
-	}
-	if *actionType == refuse {
-		userID, err := common.Token2UserID(*token)
+	case refuse:
+		userID, err := common.Token2UserID(req.Token)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: &FailCode,
-				StatusMsg:  &WA,
+				StatusCode: FailCode,
+				StatusMsg:  WA,
 			}, err
 		}
 		// 先查询视频点赞数，等于0就不用减了
-		likeCount, likeErr := mysql.FindLikeOfVideo(*videoID)
+		likeCount, likeErr := mysql.FindLikeOfVideo(req.VideoId)
 		if likeErr != nil {
 			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: &FailCode,
-				StatusMsg:  &WA,
+				StatusCode: FailCode,
+				StatusMsg:  WA,
 			}, likeErr
 		}
 		if likeCount == 0 {
-			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: &SuccessCode,
-				StatusMsg:  &AC,
-			}, nil
+			// TODO(liuyiyang): 不赋值是不是就是空的
+			return &pb.DouyinFavoriteActionResponse{}, nil
 		}
 		// 点赞数大于0，减一下
-		err = DelTX(db, int64(userID), *videoID)
+		err = DelTX(db, int64(userID), req.VideoId)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: &FailCode,
-				StatusMsg:  &WA,
+				StatusCode: FailCode,
+				StatusMsg:  WA,
 			}, err
 		}
-		rep.StatusCode = &SuccessCode
-		rep.StatusMsg = &AC
 	}
-	return rep, nil
+	return resp, nil
 }

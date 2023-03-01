@@ -3,39 +3,47 @@ package handler
 import (
 	"context"
 	"net/http"
-	"strconv"
 
 	model "go_tiktok_project/common/dal/mysql"
+	"go_tiktok_project/idl/biz/model/pb"
 
 	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
-type CommentListResponse struct {
-	StatusCode  int32           `json:"status_code"`
-	StatusMsg   string          `json:"status_msg,omitempty"`
-	CommentList []model.Comment `json:"comment_list,omitempty"`
-}
-
-// 查看视频的所有评论，按发布时间倒序
+// CommentList 查看视频的所有评论，按发布时间倒序
 func CommentList(ctx context.Context, c *app.RequestContext) {
 	path := c.Request.Path()
 	logs.Info("req path: %s", string(path))
 
-	model.InitDB()
+	req := new(pb.DouyinCommentListRequest)
+	if err := c.BindAndValidate(&req); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
 
-	// token := c.Query("token")
-	Video_id := c.Query("video_id")
-	video_id_n, _ := strconv.Atoi(Video_id)
-	video_id := int64(video_id_n)
-	list, err := model.FindComment(video_id)
+	list, err := model.FindComment(req.VideoId)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	resp := new(CommentListResponse)
-	resp.StatusCode = 0
-	resp.StatusMsg = "Success"
-	resp.CommentList = list
+
+	resp := new(pb.DouyinCommentListResponse)
+	resp.CommentList = convertComment(list)
 	c.JSON(http.StatusOK, resp)
+}
+
+func convertComment(comments []model.Comment) []*pb.Comment {
+	var ret []*pb.Comment
+	for _, v := range comments {
+		ret = append(ret, &pb.Comment{
+			Id: v.CommentID,
+			User: &pb.User{
+				Id: v.UserID,
+			},
+			Content:    v.Context,
+			CreateDate: v.CommentTime.Format("2006-01-02 15:04:05"),
+		})
+	}
+	return ret
 }

@@ -77,7 +77,7 @@ func GetUserVideo(videoUserID, tokenUserID int64) ([]*pb.Video, error) {
 }
 
 // 视频截图，保存视频数据到数据库
-func PostUserVideo(user_id int64, title string, filepath string, filedata string) error {
+func PostUserVideo(user_id int64, title string, filedir, filename string) error {
 
 	mysql.InitDB()
 
@@ -90,8 +90,10 @@ func PostUserVideo(user_id int64, title string, filepath string, filedata string
 	var video_id int64 = max_video_id + 1
 
 	//将视频第1帧截图保存为封面
-	strArray := strings.Split(filepath, ".")
-	ImageName := strArray[0]
+	strArray := strings.Split(filename, ".")
+	filedata := strArray[0]
+	ImageName := filedir + filedata
+	filepath := filedir + filename
 	logs.Info("imageName: %s", ImageName)
 	logs.Info("filepath: %s", filepath)
 	imagePath, err := GetSnapshot(filepath, ImageName, 1)
@@ -101,8 +103,28 @@ func PostUserVideo(user_id int64, title string, filepath string, filedata string
 	}
 	logs.Info("imagePath: ", imagePath)
 
+	save_filename := fmt.Sprintf("%d_%d_%s", user_id, video_id, filedata)
+	video_path := "/root/plalyy/go/src/go_tiktok_project/video_data/" + save_filename + ".mp4"
+	image_path := "/root/plalyy/go/src/go_tiktok_project/video_data/" + save_filename + ".jpg"
+
+	err = SaveVideoToService(filepath, video_path)
+	if err != nil {
+		logs.Errorf("上传视频出错, error: " + err.Error())
+		return err
+	}
+	err = SaveVideoToService(imagePath, image_path)
+	if err != nil {
+		logs.Errorf("上传图片出错, error: " + err.Error())
+		return err
+	}
+
+	video_database_path := "http://49.232.155.203:8807/data/" + save_filename + ".mp4"
+	image_database_path := "http://49.232.155.203:8807/data/" + save_filename + ".jpg"
+
+	logs.Info("video_database_path:", video_database_path)
+	logs.Info("image_database_path", image_database_path)
 	//将video数据写入数据库
-	err_createvideo := mysql.CreateVideo(video_id, user_id, filepath, imagePath, 0, 0, title, filedata)
+	err_createvideo := mysql.CreateVideo(video_id, user_id, video_database_path, image_database_path, 0, 0, title, filedata)
 	if err_createvideo != nil {
 		logs.Errorf("创建Video数据出错, error: " + err.Error())
 		return err
@@ -110,9 +132,25 @@ func PostUserVideo(user_id int64, title string, filepath string, filedata string
 	return nil
 }
 
+// 保存视频到服务器
+func SaveVideoToService(localFile, RemoteFileName string) (err error) {
+	username := "root"
+	password := "Freedom9"
+	ip := "49.232.155.203"
+	port := "22"
+	client := NewSSHClient(username, password, ip, port)
+
+	n, err := client.UploadFile(localFile, RemoteFileName)
+	if err != nil {
+		logs.Errorf("上传到服务器失败, error: ", err)
+		return err
+	}
+	logs.Info("upload file[%v] ok, size=[%d]\n", RemoteFileName, n)
+	return nil
+}
+
 // 截取视频为封面
 func GetSnapshot(videoPath, imageName string, frameNum int) (ImagePath string, err error) {
-
 	//截取视频
 	buf := bytes.NewBuffer(nil)
 	err = ffmpeg.Input(videoPath).Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
@@ -123,7 +161,6 @@ func GetSnapshot(videoPath, imageName string, frameNum int) (ImagePath string, e
 		logs.Errorf("截图失败, error: ", err)
 		return "", err
 	}
-
 	//保存为图片
 	img, err := imaging.Decode(buf)
 	if err != nil {
@@ -135,8 +172,6 @@ func GetSnapshot(videoPath, imageName string, frameNum int) (ImagePath string, e
 		logs.Info("生成缩略图失败：", err)
 		return "", err
 	}
-
 	imgPath := imageName + ".png"
-
 	return imgPath, nil
 }

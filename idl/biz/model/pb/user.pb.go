@@ -26,8 +26,8 @@ type DouyinUserRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId int64  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" query:"user_id"` // 用户id
-	Token  string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty" query:"token"`                    // 用户鉴权token
+	UserId int64  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id" query:"user_id"` // 用户id
+	Token  string `protobuf:"bytes,2,opt,name=token,proto3" json:"token" query:"token"`                    // 用户鉴权token
 }
 
 func (x *DouyinUserRequest) Reset() {
@@ -81,9 +81,9 @@ type DouyinUserResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
-	User       *User  `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty" form:"user" query:"user"`                                              // 用户信息
+	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg" form:"status_msg" query:"status_msg"`       // 返回状态描述
+	User       *User  `protobuf:"bytes,3,opt,name=user,proto3" json:"user" form:"user" query:"user"`                                              // 用户信息
 }
 
 func (x *DouyinUserResponse) Reset() {
@@ -144,8 +144,8 @@ type DouyinUserLoginRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty" query:"username"` // 登录用户名
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty" query:"password"` // 登录密码
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username" query:"username"` // 登录用户名
+	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password" query:"password"` // 登录密码
 }
 
 func (x *DouyinUserLoginRequest) Reset() {
@@ -199,10 +199,10 @@ type DouyinUserLoginResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
-	UserId     int64  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" form:"user_id" query:"user_id"`                     // 用户id
-	Token      string `protobuf:"bytes,4,opt,name=token,proto3" json:"token,omitempty" form:"token" query:"token"`                                          // 用户鉴权token
+	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg" form:"status_msg" query:"status_msg"`       // 返回状态描述
+	UserId     int64  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id" form:"user_id" query:"user_id"`                     // 用户id
+	Token      string `protobuf:"bytes,4,opt,name=token,proto3" json:"token" form:"token" query:"token"`                                          // 用户鉴权token
 }
 
 func (x *DouyinUserLoginResponse) Reset() {
@@ -270,8 +270,8 @@ type DouyinUserRegisterRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty" query:"username"` // 注册用户名，最长32个字符
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty" query:"password"` // 密码，最长32个字符
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username" query:"username"` // 注册用户名，最长32个字符
+	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password" query:"password"` // 密码，最长32个字符
 }
 
 func (x *DouyinUserRegisterRequest) Reset() {
@@ -325,10 +325,10 @@ type DouyinUserRegisterResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
-	UserId     int64  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" form:"user_id" query:"user_id"`                     // 用户id
-	Token      string `protobuf:"bytes,4,opt,name=token,proto3" json:"token,omitempty" form:"token" query:"token"`                                          // 用户鉴权token
+	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg" form:"status_msg" query:"status_msg"`       // 返回状态描述
+	UserId     int64  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id" form:"user_id" query:"user_id"`                     // 用户id
+	Token      string `protobuf:"bytes,4,opt,name=token,proto3" json:"token" form:"token" query:"token"`                                          // 用户鉴权token
 }
 
 func (x *DouyinUserRegisterResponse) Reset() {

@@ -10,17 +10,17 @@ import (
 )
 
 func GetUserInfo(ctx context.Context, req *pb.DouyinUserRequest, userInfo *authenticate.UserInfo) (*pb.DouyinUserResponse, error) {
-	userRecord, err := mysql.FindUserById(uint64(req.UserId))
+	userRecord, err := mysql.FindUserById(userInfo.UserID)
 	if err != nil {
 		logs.Errorf("[SQL Error] get user record err: %v", err)
 		return nil, err
 	}
 
-	isFollow, err := mysql.CheckFollow(userInfo.UserID, req.UserId)
-	if err != nil {
-		logs.Errorf("[SQL Error] check follow err: %v", err)
-		return nil, err
-	}
+	//isFollow, err := mysql.CheckFollow(userInfo.UserID, req.UserId)
+	//if err != nil {
+	//	logs.Errorf("[SQL Error] check follow err: %v", err)
+	//	return nil, err
+	//}
 
 	resp := &pb.DouyinUserResponse{
 		User: &pb.User{
@@ -28,7 +28,7 @@ func GetUserInfo(ctx context.Context, req *pb.DouyinUserRequest, userInfo *authe
 			Name:          userRecord.NickName,
 			FollowCount:   userRecord.Follow_cnt,
 			FollowerCount: userRecord.Follower_cnt,
-			IsFollow:      isFollow,
+			IsFollow:      false,
 		},
 	}
 	return resp, nil

@@ -1,12 +1,11 @@
 package service
 
 import (
+	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 	"go_tiktok_project/common/authenticate"
 	model "go_tiktok_project/common/dal/mysql"
 	"go_tiktok_project/common/middlewares"
 	"go_tiktok_project/idl/biz/model/pb"
-
-	"github.com/cloudwego/hertz/cmd/hz/util/logs"
 )
 
 const (

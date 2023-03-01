@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"go_tiktok_project/common"
 	"go_tiktok_project/common/authenticate"
 	"go_tiktok_project/common/dal/mysql"
 	"go_tiktok_project/idl/biz/model/pb"
@@ -39,8 +40,10 @@ func UserLogin(ctx context.Context, req *pb.DouyinUserLoginRequest) (*pb.DouyinU
 	token, err := authenticate.GenToken(user.UserID, user.Username)
 
 	resp := &pb.DouyinUserLoginResponse{
-		UserId: user.UserID,
-		Token:  token,
+		StatusCode: common.LoginSuccess,
+		StatusMsg:  common.LoginSuccessMsg,
+		UserId:     user.UserID,
+		Token:      token,
 	}
 	return resp, nil
 }

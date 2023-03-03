@@ -5,21 +5,33 @@
 a simple implementation of Tiktok.
 
 ```bash
+.
+├── build.sh               # 编译脚本
 ├── common                 # 通用组件
-│   ├── middlewares        # 中间件
-│   ├── dal                # 数据访问
-│   │   ├── mysql          
-│   │   └── redis          
+│   ├── authenticate       # 鉴权
 │   ├── config             # 配置
-│   └── errlog             # 错误信息日志
-├── handler                # 应用目录
+│   ├── const.go           
+│   ├── dal                # 数据访问
+│   │   ├── mysql
+│   │   └── redis
+│   ├── errlog             # 错误信息日志
+│   └── middlewares        # 中间件
+├── docker-compose.sh
+├── docker-compose.yml
+├── handler                # 接口
 ├── idl                    # 接口定义
-├── util                   # 工具
+│   ├── *.proto
+│   └── biz/model
+├── main.go
+├── output
+│   |-- bin
+│   └── conf
+├── README.md
+├── router.go
 ├── service
-│   └── ...      
-├── storage                # 存储本地文件    
-├── go.mod
-└── go.sum     
+├── start.sh
+├── util                   # 工具
+└── video_data             # 存储文件
 ```
 
 ## Usage
